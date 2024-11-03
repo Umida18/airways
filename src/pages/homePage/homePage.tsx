@@ -3,7 +3,8 @@ import LoginPage from "../login";
 const HomePage = () => {
   return (
     <>
-      <LoginPage />
+      {" "}
+      <LoginPage />{" "}
     </>
   );
 };
