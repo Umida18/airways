@@ -1,9 +1,8 @@
 export const a = "rgb(5, 69, 146)";
 export const b = "rgb(240, 242, 245)";
-const primary = "rgb(229, 240, 252)";
-const c = "rgb(229, 240, 252)";
+export const primary = "rgb(229, 240, 252)";
+export const c = "rgb(229, 240, 252)";
 import { useEffect, useState } from "react";
-import { IoExitOutline } from "react-icons/io5";
 
 import {
   MenuFoldOutlined,
@@ -11,8 +10,10 @@ import {
   UploadOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Button, Input, Layout as LayoutAntd, Menu, Typography } from "antd";
+import { Button, Layout as LayoutAntd, Menu, Typography } from "antd";
 import { Link, useLocation } from "react-router-dom";
+import { dataSuperAdmins } from "../../pages/superAdminPage/admins";
+// import { dataSuperAdmins } from "../../pages/superAdminPage/admins";
 const { Title } = Typography;
 const { Header, Sider, Content } = LayoutAntd;
 
@@ -23,37 +24,38 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   console.log("path", path);
   // const [openKeys, setOpenKeys] = useState([""]);
   const [selectedKey, setSelectedKey] = useState<string>(path);
-
+  let title = path.charAt(0).toUpperCase() + path.slice(1);
   const handleClick = (e: any) => {
     setSelectedKey(e.key);
   };
+  console.log(title);
+
   useEffect(() => {
     setSelectedKey(location.pathname.slice(1));
   }, []);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
   return (
-    <LayoutAntd className="bg-[`rgb(240, 242, 245)`]">
+    <LayoutAntd className="bg-white">
       <Sider
         className=" m-5  rounded-start-xl rounded-end-3xl pt-10 w-[250px] "
         collapsed={collapsed}
         style={{
           width: 500,
-          background: "#B3E5FC",
+          background: "rgb(5,62,139)",
           borderTopLeftRadius: "10px",
           borderBottomLeftRadius: "10px",
           borderTopRightRadius: "150px",
-          borderBottomRightRadius: "150px",
+          borderBottomRightRadius: "10px",
         }}
       >
         <div className="demo-logo-vertical" />
-        {/* <div className="flex flex-col ps-8 pb-5 object-cover overflow-hidden ">
-          <img
-            src="https://img.freepik.com/free-photo/handsome-bearded-guy-posing-against-white-wall_273609-20597.jpg"
-            alt=""
-            className="w-16 h-16 rounded-full mb-5"
-          />
-          <Title level={5}>Super Admin</Title>
-        </div> */}
+
         <div className="ps-2 mb-4 mt-5">
           {" "}
           <Button
@@ -64,11 +66,12 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               fontSize: "16px",
               width: 64,
               height: 64,
+              color: "white",
             }}
           />
         </div>
         <Menu
-          style={{ background: "#B3E5FC" }}
+          style={{ background: "rgb(5,62,139)", color: "white" }}
           mode="inline"
           selectedKeys={[selectedKey]}
           onClick={handleClick}
@@ -76,84 +79,126 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           items={[
             {
               key: "/admin/admins",
-              icon: <UserOutlined />,
-              label: <Link to="admins">Admins</Link>,
+              icon: <UserOutlined style={{ color: "white" }} />,
+              label: (
+                <Link to="admins" style={{ color: "white" }}>
+                  Admins
+                </Link>
+              ),
             },
             {
               key: "/admin/tickets",
-              icon: <UserOutlined />,
-              label: <Link to="tickets">Tickets</Link>,
+              icon: <UserOutlined style={{ color: "white" }} />,
+              label: (
+                <Link to="tickets" style={{ color: "white" }}>
+                  Tickets
+                </Link>
+              ),
             },
 
             {
-              key: "/admin/lines",
-              icon: <UploadOutlined />,
-              label: <Link to="lines">Lines</Link>,
+              key: "/admin/flights",
+              icon: <UploadOutlined style={{ color: "white" }} />,
+              label: (
+                <Link to="flights" style={{ color: "white" }}>
+                  Flights
+                </Link>
+              ),
+            },
+            {
+              key: "/admin/airplanes",
+              icon: <UploadOutlined style={{ color: "white" }} />,
+              label: (
+                <Link to="airplanes" style={{ color: "white" }}>
+                  Airplanes
+                </Link>
+              ),
             },
           ]}
         />
-        <Menu
-          style={{ background: "#B3E5FC" }}
+        {/* <Menu
+          style={{ background: "rgb(5,62,139)", color: "white" }}
           mode="inline"
           items={[
             {
               key: "exit",
-              icon: <IoExitOutline />,
+              icon: (
+                <IoExitOutline
+                  style={{ background: "rgb(5,62,139)", color: "white" }}
+                />
+              ),
               label: (
-                <div>
+                <div style={{ background: "rgb(5,62,139)", color: "white" }}>
                   <Link to="/">Exit</Link>
                 </div>
               ),
             },
           ]}
-        />
+        /> */}
       </Sider>
-      <LayoutAntd className="bg-[`rgb(245, 245, 245)`]">
+      <LayoutAntd className="bg-white">
         <Header
-          className="flex flex-row justify-between "
+          className="flex px-12 flex-row justify-between items-center mb-0 bg-white"
           style={{
             margin: "24px 16px",
-            padding: 24,
-            background: "#f5f5f5",
+            marginBottom: "0px",
+            // padding: 24,
+            // background: "#f5f5f5",
             // background: "rgb(229, 240, 252)",
             // borderRadius: "30px",
           }}
         >
-          <Title style={{ background: "rgb(240, 242, 245)" }}>Dashboard</Title>
-          <div className="flex flex-row gap-5">
-            <Input
-              type="search"
-              name="search"
-              placeholder="search"
-              style={{
-                background: "#B3E5FC",
-                width: "300px ",
-                padding: "15px",
-                borderRadius: "15px",
-              }}
-            />
-            <div className="flex flex-row ps-8 pb-5  items-center gap-3 ">
-              <img
-                src="https://img.freepik.com/free-photo/handsome-bearded-guy-posing-against-white-wall_273609-20597.jpg"
-                alt=""
-                className="w-12 h-12 rounded-full mb-5 overflow-hidden object-cover"
-              />
-              <Title level={5}>Super Admin</Title>
+          <Title>{title}</Title>
+          {/* <div className="flex flex-row gap-5 items-center"> */}
+
+          <div
+            className="flex flex-row  items-center gap-3 "
+            onClick={showModal}
+          >
+            <div className="flex flex-col">
+              <Title level={5}>{dataSuperAdmins[0].fullname}</Title>
+              <Title
+                className="text-gray-500 p-0 m-0 text-end"
+                style={{ fontSize: "10px", margin: "0" }}
+              >
+                {dataSuperAdmins[0].role}
+              </Title>
             </div>
+            <img
+              src={dataSuperAdmins[0].image}
+              alt=""
+              className="w-12 h-12 rounded-full  overflow-hidden object-cover"
+            />
           </div>
+          {/* </div> */}
         </Header>
         <Content
           style={{
             margin: "24px 16px",
             padding: 24,
-            minHeight: "100vh",
-            background: "#B3E5FC",
+            minHeight: "750px",
+            // background: "#B3E5FC",
+            background: "rgb(240, 242, 245)",
             borderRadius: "30px",
           }}
         >
           {children}
         </Content>
       </LayoutAntd>
+      {/* <Modal
+        title="Super Admin"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <div>
+          <img
+            src={dataSuperAdmins[0].image}
+            className="w-68 h-68 overflow-hidden object-cover rounded-lg"
+          />
+          <Title level={4}>{dataSuperAdmins[0].fullname}</Title>
+        </div>
+      </Modal> */}
     </LayoutAntd>
   );
 };
