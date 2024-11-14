@@ -1,31 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { Table, Button, Switch, Input, Space, Drawer, message } from "antd";
+import { Table, Button, Input, Space, Drawer, message } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
   UserAddOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
+import { v4 as uuidv4 } from "uuid";
 import { useForm } from "antd/es/form/Form";
 
-import type { ColumnsType } from "antd/es/table";
 import { AutoForm, FieldType } from "../../components/auto-form";
 import axios from "axios";
 import { User } from "../../types";
 
-export const dataSuperAdmins = [
-  {
-    id: 1,
-    image:
-      "https://img.freepik.com/free-photo/handsome-bearded-guy-posing-against-white-wall_273609-20597.jpg",
-    fullname: "Davronov Davron",
-    role: "Super Admin",
-    email: "davronov@gmail.com",
-  },
-];
-
-export function Admins() {
+export function SuperAdmins() {
   const [form] = useForm();
   const [admins, setAdmins] = useState<User[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -79,38 +67,54 @@ export function Admins() {
 
   const columns = [
     {
-      title: "IMAGE",
-      dataIndex: "image",
-      key: "image",
-      render: (
-        value: any //Record<string, unknown>
-      ) => (
-        <img
-          className="w-12 h-12 rounded-full object-cover"
-          // src={`${baseURL}${value?.url}`}
-          src={value}
-        />
-      ),
+      title: "FULLNAME",
+      dataIndex: "id",
+      key: "id",
+      render: (value: any) => {
+        const n = admins.find((admin) => admin.id == value);
+        return n ? <p>{n.username + " " + n.surname}</p> : "-";
+      },
     },
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      render: (text: string) => (
-        <a key={text} className="text-blue-600 hover:text-blue-800">
-          {text}
-        </a>
-      ),
-    },
+
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
     },
     {
+      title: "Password",
+      dataIndex: "password",
+      key: "password",
+    },
+    {
       title: "Role",
       dataIndex: "role",
       key: "role",
+    },
+    {
+      title: "birthday",
+      dataIndex: "birthday",
+      key: "birthday",
+    },
+    {
+      title: "phoneNumber",
+      dataIndex: "phoneNumber",
+      key: "phoneNumber",
+    },
+    {
+      title: "balance",
+      dataIndex: "balance",
+      key: "balance",
+    },
+    {
+      title: "address",
+      dataIndex: "address",
+      key: "address",
+    },
+    {
+      title: "passportSeries",
+      dataIndex: "passportSeries",
+      key: "passportSeries",
     },
 
     {
@@ -140,11 +144,14 @@ export function Admins() {
   const fields = useMemo(
     () =>
       [
-        // { label: "Image", name: "image", type: "file" },
         {
-          label: "FullName",
-          name: "name",
+          label: "Name",
+          name: "username",
           rules: [{ required: true, message: "Пустое поле!" }],
+        },
+        {
+          label: "lastName",
+          name: "surname",
         },
         {
           label: "password",
@@ -162,8 +169,34 @@ export function Admins() {
           type: "select",
           options: [
             { value: "Admin", label: "Admin" },
-            { value: "User", label: "User" },
+            // { value: "User", label: "User" },
           ],
+          rules: [{ required: true, message: "Пустое поле!" }],
+        },
+        {
+          label: "birthday",
+          name: "birthday",
+          // rules: [{ required: true, message: "Пустое поле!" }],
+        },
+        {
+          label: "phoneNumber",
+          name: "phoneNumber",
+          rules: [{ required: true, message: "Пустое поле!" }],
+        },
+        {
+          label: "balance",
+          name: "balance",
+          type: "number",
+          rules: [{ required: true, message: "Пустое поле!" }],
+        },
+        {
+          label: "address",
+          name: "address",
+          rules: [{ required: true, message: "Пустое поле!" }],
+        },
+        {
+          label: "passportSeries",
+          name: "passportSeries",
           rules: [{ required: true, message: "Пустое поле!" }],
         },
       ] as FieldType[],
@@ -175,17 +208,13 @@ export function Admins() {
       if (editingAdmin) {
         await axios.put(
           `https://4d71b68cb41c81df.mokky.dev/admins/${editingAdmin.id}`,
-          {
-            ...values,
-            image: "",
-          }
+          { ...values }
         );
         message.success("Admin updated successfully");
       } else {
         await axios.post("https://4d71b68cb41c81df.mokky.dev/admins", {
           ...values,
-          id: uuidv4(),
-          image: "",
+          // id: uuidv4(),
         });
         message.success("Admin added successfully");
       }
@@ -208,7 +237,7 @@ export function Admins() {
             type="primary"
             icon={<UserAddOutlined />}
             className="bg-blue-600 hover:bg-blue-700"
-            onClick={() => setIsModalVisible(true)}
+            onClick={() => handleAdd()}
           >
             Add New Admin
           </Button>
@@ -217,12 +246,11 @@ export function Admins() {
       </div>
 
       <Drawer
-        title="Category"
+        title="Admins"
         onClose={() => setIsModalVisible(false)}
         open={isModalVisible}
         extra={
           <Space>
-            {/* <Button onClick={handleModalCancel}>Cancel</Button> */}
             <Button onClick={() => form.submit()} type="primary">
               Save
             </Button>

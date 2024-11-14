@@ -7,11 +7,16 @@ export type Admins = {
 
 export interface User {
   id: string;
-  name: string;
-  image: string;
+  username: string;
+  surname: string;
   password: string;
   email: string;
   role: string;
+  birthday: string;
+  phoneNumber: string;
+  balance: number;
+  address: string;
+  passportSeriies: string;
 }
 
 export type Airport =

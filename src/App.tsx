@@ -9,16 +9,19 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import { Admins } from "./pages/superAdminPage/admins";
-import { Tickets } from "./pages/superAdminPage/tickets";
-import { Flights } from "./pages/superAdminPage/flights";
+import { SuperAdmins } from "./pages/superAdminPage/admins";
+import { Tickets } from "./pages/adminPage/tickets";
+import { Flights } from "./pages/adminPage/flights";
 import { useState } from "react";
-import { Layout } from "./components/adminLayout";
+import { Layout } from "./components/superAdminLayout";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Airplanes } from "./pages/superAdminPage/airplanes";
+import { Airplanes } from "./pages/adminPage/airplanes";
+import { AdminLayout } from "./components/adminLayout";
+import { Admins } from "./pages/adminPage/admins";
+import { Users } from "./pages/adminPage/users";
 
 interface ProtectedRouteProps {
   isAuthenticated: boolean;
@@ -62,7 +65,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
 
               <Route
-                path="/admin/"
+                path="/superAdmin/"
                 element={
                   <ProtectedRoute isAuthenticated={isAuthenticated}>
                     <Layout>
@@ -71,7 +74,22 @@ function App() {
                   </ProtectedRoute>
                 }
               >
+                <Route path="admins" element={<SuperAdmins />} />
+              </Route>
+            </Routes>{" "}
+            <Routes>
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <AdminLayout>
+                      <Outlet />
+                    </AdminLayout>
+                  </ProtectedRoute>
+                }
+              >
                 <Route path="admins" element={<Admins />} />
+                <Route path="users" element={<Users />} />
                 <Route path="tickets" element={<Tickets />} />
                 <Route path="flights" element={<Flights />} />
                 <Route path="airplanes" element={<Airplanes />} />

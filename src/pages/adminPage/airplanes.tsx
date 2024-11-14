@@ -64,6 +64,28 @@ export function Airplanes() {
     }
   };
 
+  const onFinish = async (values: Record<string, any>) => {
+    try {
+      if (editingAirplane) {
+        await axios.put(
+          `https://4d71b68cb41c81df.mokky.dev/airplanes/${editingAirplane.id}`,
+          values
+        );
+        message.success("airplanes updated successfully");
+      } else {
+        await axios.post("https://4d71b68cb41c81df.mokky.dev/airplanes", {
+          ...values,
+          // id: uuidv4(),
+        });
+        message.success("airplanes added successfully");
+      }
+      setIsModalVisible(false);
+      fetchAirplanes();
+    } catch (error) {
+      message.error("Failed to save airplanes");
+    }
+  };
+
   const columns = [
     {
       title: "model",
@@ -152,27 +174,6 @@ export function Airplanes() {
     [airplanes]
   );
 
-  const onFinish = async (values: Record<string, any>) => {
-    try {
-      if (editingAirplane) {
-        await axios.put(
-          `https://4d71b68cb41c81df.mokky.dev/airplanes/${editingAirplane.id}`,
-          values
-        );
-        message.success("airplanes updated successfully");
-      } else {
-        await axios.post("https://4d71b68cb41c81df.mokky.dev/airplanes", {
-          ...values,
-          id: uuidv4(),
-        });
-        message.success("airplanes added successfully");
-      }
-      setIsModalVisible(false);
-      fetchAirplanes();
-    } catch (error) {
-      message.error("Failed to save airplanes");
-    }
-  };
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white rounded-lg shadow p-6">
