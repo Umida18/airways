@@ -1,11 +1,54 @@
-import "./index.css";
-import HomePage from "./pages/homePage";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import LoginPage from "./pages/login";
 import { ConfigProvider } from "antd";
-import Flights from "./pages/Tickets/Tickets";
+import "./App.css";
 
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+} from "react-router-dom";
+import { SuperAdmins } from "./pages/superAdminPage/admins";
+import { Tickets } from "./pages/adminPage/tickets";
+import { Flights } from "./pages/adminPage/flights";
+import { useState } from "react";
+import { Layout } from "./components/superAdminLayout";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { CacheProvider } from "@emotion/react";
+import createCache from "@emotion/cache";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Airplanes } from "./pages/adminPage/airplanes";
+import { AdminLayout } from "./components/adminLayout";
+import { Admins } from "./pages/adminPage/admins";
+import { Users } from "./pages/adminPage/users";
+import MainLayout from "./pages/homePage";
+import LoginPage from "./pages/login";
+
+interface ProtectedRouteProps {
+  isAuthenticated: boolean;
+  children: JSX.Element;
+}
+
+const ProtectedRoute = ({ isAuthenticated, children }: ProtectedRouteProps) => {
+  if (!isAuthenticated) {
+    return <Navigate to="/admin/admins" />;
+  }
+  return children;
+};
+const cache = createCache({ key: "custom" });
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 4 * 60 * 1000,
+      cacheTime: 0,
+      retry: 0,
+    },
+  },
+});
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+
   return (
     <BrowserRouter>
       <ConfigProvider
@@ -15,11 +58,49 @@ function App() {
           },
         }}
       >
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/flights" element={<Flights />} />
-        </Routes>
+        <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <CacheProvider value={cache}>
+            {/* <Provider store={store}> */}
+            <Routes>
+              <Route path="/" element={<MainLayout />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/flights" element={<Flights />} />
+
+              <Route
+                path="/superAdmin/"
+                element={
+                  <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <Layout>
+                      <Outlet />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="admins" element={<SuperAdmins />} />
+              </Route>
+            </Routes>{" "}
+            <Routes>
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <AdminLayout>
+                      <Outlet />
+                    </AdminLayout>
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="admins" element={<Admins />} />
+                <Route path="users" element={<Users />} />
+                <Route path="tickets" element={<Tickets />} />
+                <Route path="flights" element={<Flights />} />
+                <Route path="airplanes" element={<Airplanes />} />
+              </Route>
+            </Routes>
+            {/* </Provider> */}
+          </CacheProvider>
+        </QueryClientProvider>
       </ConfigProvider>
     </BrowserRouter>
   );

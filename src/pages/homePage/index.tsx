@@ -193,6 +193,12 @@ export default function MainLayout() {
               { label: "ENG", value: "ENG" },
             ]}
           />
+          <div className="flex gap-2">
+            <Button onClick={() => navigate("./admin/admins")}>Admin</Button>
+            <Button onClick={() => navigate("./superAdmin/admins")}>
+              Super Admin
+            </Button>
+          </div>
         </Header>
 
         <Content
