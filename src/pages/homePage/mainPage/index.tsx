@@ -4,6 +4,7 @@ import {
   Col,
   DatePicker,
   Form,
+  InputNumber,
   Layout,
   Row,
   Select,
@@ -14,20 +15,20 @@ import { useState } from "react";
 import Tickets from "./Cards";
 import { useNavigate } from "react-router-dom";
 import "./index.css";
+import { useFloor } from "./FloorContext";
 const { Header, Content } = Layout;
-const { TabPane } = Tabs;
-const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 export default function MainLayout() {
   const [selectedWay, setSelectedWay] = useState<"oneWay" | "roundTrip">(
     "roundTrip"
   );
+  const [floor, setFloor] = useFloor();
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const onFinish = (values: any) => {
     console.log("Form values:", values);
-    navigate("/flights");
+    navigate("/flightsPage");
   };
 
   const navItems = [
@@ -178,6 +179,7 @@ export default function MainLayout() {
       image: "azr.jpeg",
     },
   ];
+
   return (
     <>
       <Layout className=" px-8 !mx-auto min-h-[590px] bg-center bg-no-repeat bg-cover bg-[url('https://assets.wego.com/image/upload/f_auto,q_auto:best,w_3840/v1725958728/flights/airlines_hero/HY_4.jpg')]">
@@ -265,8 +267,9 @@ export default function MainLayout() {
                       placeholder="From"
                       style={{ width: "100%", height: "60px", fontWeight: 700 }}
                     >
-                      <Select.Option value="tashkent">Tashkent</Select.Option>
-                      <Select.Option value="samarkand">Samarkand</Select.Option>
+                      {" "}
+                      <Select.Option value="moscow">Moscow</Select.Option>
+                      <Select.Option value="dubai">Dubai</Select.Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -330,9 +333,19 @@ export default function MainLayout() {
                       placeholder="Passengers"
                       style={{ width: "100%", height: "60px", fontWeight: 700 }}
                     >
-                      <Select.Option value="1">1 Passenger</Select.Option>
-                      <Select.Option value="2">2 Passengers</Select.Option>
-                      <Select.Option value="3">3 Passengers</Select.Option>
+                      <Select.Option value="1">
+                        <InputNumber
+                          min={1}
+                          max={10}
+                          value={floor}
+                          onChange={(value) => setFloor(value)}
+                          style={{ width: 80 }}
+                          controls={{
+                            upIcon: <span>▲</span>,
+                            downIcon: <span>▼</span>,
+                          }}
+                        />
+                      </Select.Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -362,7 +375,7 @@ export default function MainLayout() {
                   <Row justify="end">
                     <Col>
                       <Button
-                        className=" rounded-full text-[16px] px-6 py-3"
+                        className=" rounded-full text-[16px] px-8 py-5"
                         type="primary"
                         htmlType="submit"
                       >

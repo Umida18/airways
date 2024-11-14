@@ -9,7 +9,7 @@ const { Header, Content } = Layout;
 
 //479fe1
 
-const Flights = () => {
+const FlightsPage = () => {
   return (
     <div className="h-screen">
       <Header
@@ -197,4 +197,4 @@ const Flights = () => {
   );
 };
 
-export default Flights;
+export default FlightsPage;
