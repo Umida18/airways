@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   Col,
   Dropdown,
   Form,
@@ -7,27 +8,36 @@ import {
   Layout,
   MenuProps,
   Row,
+  Switch,
   Typography,
 } from "antd";
 import { useMemo, useState } from "react";
 import "./login.scss";
+import { RxFontRoman } from "react-icons/rx";
+import { Link, useNavigate } from "react-router-dom";
 
 const { Header, Content } = Layout;
 
 const LoginPage = () => {
-  const [selectedLanguage, setSelectedLanguage] = useState("O'zbekcha");
   const [selectedTypeRegist, setSelectedTypeRegist] = useState<boolean>(false);
+  const [isButtonActive, setIsButtonActive] = useState(false);
+  const navigate = useNavigate();
 
-  const handleMenuClick = (e: any) => {
-    setSelectedLanguage(e.key);
+  const handleFieldsChange = (changedFields: any, allFields: any) => {
+    const allFilled = allFields.every((field: any) => field.value);
+    setIsButtonActive(allFilled);
+    console.log("allFields", allFields);
+  };
+  // const handleMenuClick = (e: any) => {
+  //   setSelectedLanguage(e.key);
+  // };
+
+  const handleValues = () => {
+    navigate("./");
   };
 
   const items: MenuProps["items"] = useMemo(
     () => [
-      //   {
-      //     label: "O'zbek tili",
-      //     key: "0",
-      //   },
       {
         label: "Русский",
         key: "1",
@@ -59,8 +69,8 @@ const LoginPage = () => {
           </Col>
         </Row>
       </Header>
-      <Content className="flex items-center justify-center py-6 p-3">
-        <Row gutter={[100, 30]} className=" flex !justify-between !px-3">
+      <Content className="px-10 py-6">
+        <Row className="flex justify-between">
           <Col xl={12} className=" flex flex-col justify-center items-start">
             <Typography className="text-5xl font-bold text-white mb-5">
               Login or Register
@@ -84,7 +94,7 @@ const LoginPage = () => {
               </li>
             </ol>
           </Col>
-          <Col xl={12} className="flex justify-center w-[100%]">
+          <Col xl={12} className="flex justify-end items-center w-[100%]">
             <div className="bg-white w-[480px] py-10 px-8 rounded-lg">
               <div
                 //   css={formStyle}
@@ -94,152 +104,167 @@ const LoginPage = () => {
                   <Typography
                     style={{
                       color: "black",
-                      fontWeight: 600,
+                      fontWeight: 700,
                       fontSize: "29px",
                       marginBottom: "30px",
                     }}
                   >
-                    Войти
+                    Login
                   </Typography>
                 </div>
-                <Form
+                {/* <Form
                   layout="vertical"
                   // onFinish={() => router.push("/admin/product/product")}
-                >
-                  {!selectedTypeRegist && (
-                    <>
-                      <Form.Item>
-                        <Typography
-                          style={{ fontSize: "18px", marginBottom: "10px" }}
-                        >
-                          Email
-                        </Typography>
-                        <Input
-                          style={{ borderRadius: "10px", height: "45px" }}
-                        />
-                      </Form.Item>
-                      <Form.Item>
-                        <Typography
-                          style={{ fontSize: "18px", marginBottom: "10px" }}
-                        >
-                          Password
-                        </Typography>
-                        <Input
-                          style={{ borderRadius: "10px", height: "45px" }}
-                        />
-                      </Form.Item>
+                > */}
+                {!selectedTypeRegist && (
+                  <Form onFinish={handleValues}>
+                    <Form.Item>
+                      <Typography
+                        style={{ fontSize: "18px", marginBottom: "10px" }}
+                      >
+                        Email
+                      </Typography>
+                      <Input
+                        // type="email"
+                        style={{ borderRadius: "10px", height: "45px" }}
+                      />
+                    </Form.Item>
+                    <Form.Item>
+                      <Typography
+                        style={{ fontSize: "18px", marginBottom: "10px" }}
+                      >
+                        Password
+                      </Typography>
+                      <Input style={{ borderRadius: "10px", height: "45px" }} />
+                    </Form.Item>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        minWidth: "100%",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <Checkbox style={{ fontSize: "1.25rem" }}>
+                        Remember me
+                      </Checkbox>
+                      <Link
+                        style={{
+                          color: "#16a34a",
+                          fontWeight: 600,
+                          fontSize: "1.25rem",
+                        }}
+                        to="ggg"
+                      >
+                        Forgot password
+                      </Link>
+                    </div>
+                    <Form.Item>
                       <Button
                         style={{
-                          backgroundColor: "#8ad1a4",
+                          backgroundColor: "#16a34a",
+
                           width: "100%",
                           height: "52px",
                           display: "flex",
                           justifyContent: "center",
                           alignItems: "center",
                           color: "white",
-                          fontSize: "16px",
                           borderRadius: "10px",
-                          marginTop: "60px",
                           border: "0",
+                          marginBlock: "10px",
+                          fontWeight: 600,
+                          fontSize: "1.25rem",
                         }}
                         htmlType="submit"
+                        // disabled={!isButtonActive}
                       >
                         Login
                       </Button>
                       <Button
                         onClick={() => setSelectedTypeRegist(true)}
                         style={{
-                          backgroundColor: "#8ad1a4",
+                          backgroundColor: "transparent",
                           width: "100%",
                           height: "52px",
                           display: "flex",
                           justifyContent: "center",
                           alignItems: "center",
-                          color: "white",
-                          fontSize: "16px",
+                          color: "#16a34a",
+                          fontSize: "1.25rem",
                           borderRadius: "10px",
-                          marginTop: "60px",
-                          border: "0",
+                          border: "1px solid #16a34a",
+                          fontWeight: 600,
                         }}
                       >
                         Register by Email
                       </Button>
-                    </>
-                  )}
-                  {selectedTypeRegist && (
-                    <>
-                      <Form.Item>
-                        <Typography
-                          style={{ fontSize: "18px", marginBottom: "10px" }}
-                        >
-                          Email
-                        </Typography>
-                        <Input
-                          style={{ borderRadius: "10px", height: "45px" }}
-                        />
-                      </Form.Item>
-                      <Form.Item>
-                        <Typography
-                          style={{ fontSize: "18px", marginBottom: "10px" }}
-                        >
-                          First name
-                        </Typography>
-                        <Input
-                          style={{ borderRadius: "10px", height: "45px" }}
-                        />
-                      </Form.Item>
-                      <Form.Item>
-                        <Typography
-                          style={{ fontSize: "18px", marginBottom: "10px" }}
-                        >
-                          Last name
-                        </Typography>
-                        <Input
-                          style={{ borderRadius: "10px", height: "45px" }}
-                        />
-                      </Form.Item>
-                      <Form.Item>
-                        <Typography
-                          style={{ fontSize: "18px", marginBottom: "10px" }}
-                        >
-                          Birth date
-                        </Typography>
-                        <Input
-                          style={{ borderRadius: "10px", height: "45px" }}
-                        />
-                      </Form.Item>
-                      <Form.Item>
-                        <Typography
-                          style={{ fontSize: "18px", marginBottom: "10px" }}
-                        >
-                          Create a password
-                        </Typography>
-                        <Input
-                          style={{ borderRadius: "10px", height: "45px" }}
-                        />
-                      </Form.Item>
-
-                      <Button
-                        onClick={() => setSelectedTypeRegist(true)}
-                        style={{
-                          backgroundColor: "#8ad1a4",
-                          width: "100%",
-                          height: "52px",
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          color: "white",
-                          fontSize: "16px",
-                          borderRadius: "10px",
-                          marginTop: "60px",
-                          border: "0",
-                        }}
+                    </Form.Item>
+                  </Form>
+                )}
+                {selectedTypeRegist && (
+                  <Form>
+                    <Form.Item>
+                      <Typography
+                        style={{ fontSize: "18px", marginBottom: "10px" }}
                       >
-                        Sign up
-                      </Button>
-                    </>
-                  )}
-                </Form>
+                        Email
+                      </Typography>
+                      <Input style={{ borderRadius: "10px", height: "45px" }} />
+                    </Form.Item>
+                    <Form.Item>
+                      <Typography
+                        style={{ fontSize: "18px", marginBottom: "10px" }}
+                      >
+                        First name
+                      </Typography>
+                      <Input style={{ borderRadius: "10px", height: "45px" }} />
+                    </Form.Item>
+                    <Form.Item>
+                      <Typography
+                        style={{ fontSize: "18px", marginBottom: "10px" }}
+                      >
+                        Last name
+                      </Typography>
+                      <Input style={{ borderRadius: "10px", height: "45px" }} />
+                    </Form.Item>
+                    <Form.Item>
+                      <Typography
+                        style={{ fontSize: "18px", marginBottom: "10px" }}
+                      >
+                        Birth date
+                      </Typography>
+                      <Input style={{ borderRadius: "10px", height: "45px" }} />
+                    </Form.Item>
+                    <Form.Item>
+                      <Typography
+                        style={{ fontSize: "18px", marginBottom: "10px" }}
+                      >
+                        Create a password
+                      </Typography>
+                      <Input style={{ borderRadius: "10px", height: "45px" }} />
+                    </Form.Item>
+
+                    <Button
+                      onClick={() => setSelectedTypeRegist(true)}
+                      style={{
+                        backgroundColor: "#8ad1a4",
+                        width: "100%",
+                        height: "52px",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        color: "white",
+                        fontSize: "16px",
+                        borderRadius: "10px",
+                        border: "0",
+                      }}
+                    >
+                      Sign up
+                    </Button>
+                  </Form>
+                )}
+                {/* </Form> */}
               </div>
             </div>
           </Col>
