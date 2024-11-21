@@ -1,11 +1,13 @@
-import { login, register } from "../components/regAndAuth/auth";
+import { login, register } from "@/services/authService";
 import { useMutation } from "@tanstack/react-query";
 
 export const useAuth = () => {
   const loginMutation = useMutation(
     async ({ email, password }: { email: string; password: string }) => {
       const data = await login(email, password);
-      localStorage.setItem("token", data.jwt);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", data.jwt);
+      }
       return data;
     }
   );
@@ -21,7 +23,9 @@ export const useAuth = () => {
       password: string;
     }) => {
       const data = await register(username, email, password);
-      localStorage.setItem("token", data.jwt);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", data.jwt);
+      }
       return data;
     }
   );

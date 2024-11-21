@@ -22,11 +22,10 @@ import { AdminLayout } from "./components/adminLayout";
 import { Admins } from "./pages/adminPage/admins";
 import { Users } from "./pages/adminPage/users";
 import MainLayout from "./pages/homePage/mainPage";
-import LoginPage from "./pages/login";
+import LoginPage from "./login/login";
 import FlightsPage from "./pages/homePage/Tickets/Tickets";
 import { FloorProvider } from "./pages/homePage/mainPage/FloorContext";
 import BuyTicket from "./pages/homePage/buyTicket/buyTicket";
-// import { FloorProvider } from "./pages/homePage/mainPage/FloorContext";
 
 interface ProtectedRouteProps {
   isAuthenticated: boolean;
@@ -71,6 +70,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<MainLayout />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<LoginPage />} />
                 <Route path="/flightsPage" element={<FlightsPage />} />
                 <Route path="/buyTicket" element={<BuyTicket />} />
 

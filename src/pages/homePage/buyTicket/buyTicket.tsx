@@ -12,7 +12,7 @@ import {
   Col,
 } from "antd";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 const BuyTicket = () => {
   const [floor] = useFloor();
@@ -22,8 +22,15 @@ const BuyTicket = () => {
     <div className="flex justify-center items-center min-h-screen">
       <div className="!w-[1168px] ">
         <Row className="!w-[100%]">
-          {Array.from({ length: floor }, (_, index) => (
-            <Card style={{ width: "100%", background: "#f5f8fa", border: 0 }}>
+          {Array.from({ length: floor }, (_, __) => (
+            <Card
+              style={{
+                width: "100%",
+                background: "#f5f8fa",
+                border: 0,
+                marginBlock: "20px",
+              }}
+            >
               <Text
                 type="danger"
                 style={{
@@ -61,9 +68,13 @@ const BuyTicket = () => {
                   </Col>
                   <Col xl={6}>
                     <Form.Item name="jinsingiz" label="Jinsingiz">
-                      <Radio.Group>
-                        <Radio.Button value="erkak">Erkak</Radio.Button>
-                        <Radio.Button value="ayol">Ayol</Radio.Button>
+                      <Radio.Group style={{ width: "100%", display: "flex" }}>
+                        <Radio.Button style={{ width: "100%" }} value="erkak">
+                          Erkak
+                        </Radio.Button>
+                        <Radio.Button style={{ width: "100%" }} value="ayol">
+                          Ayol
+                        </Radio.Button>
                       </Radio.Group>
                     </Form.Item>
                   </Col>

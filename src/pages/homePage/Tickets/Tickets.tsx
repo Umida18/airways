@@ -11,15 +11,17 @@ const { Header, Content } = Layout;
 
 const FlightsPage = () => {
   return (
-    <div className="h-screen">
+    <div className="h-screen flex flex-col justify-center  items-center">
       <Header
+        className="flex justify-center"
         style={{
           background: "linear-gradient(180deg, #4274b8 0, #479fe1 100%)",
           height: "150px",
           padding: "20px",
+          width: "100%",
         }}
       >
-        <div>
+        <div className="xl:!w-[1168px]">
           <img
             className="w-[260px]"
             src="https://booking.uzairways.com/images/color_main_logo.svg"
@@ -27,7 +29,7 @@ const FlightsPage = () => {
           />
         </div>
       </Header>
-      <Content style={{ padding: "20px" }}>
+      <Content style={{ padding: "20px" }} className="xl:!w-[1168px]">
         <div>
           {/* <Typography
             style={{

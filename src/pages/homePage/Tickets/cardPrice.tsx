@@ -12,6 +12,9 @@ const CardPrice = () => {
           fontWeight: 700,
           fontSize: "16px",
           marginBlock: 25,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
         className="flex items-center gap-1"
       >
@@ -63,6 +66,94 @@ const CardPrice = () => {
             </div>
           </div>
         </Col>
+        <Col xl={6}>
+          <div
+            className="hover:shadow-lg"
+            style={{
+              background: "#e8f1ff",
+              border: "none",
+              paddingBlock: 10,
+              borderRadius: 8,
+            }}
+          >
+            <Typography
+              style={{
+                background: "#479fe1",
+                padding: 5,
+                color: "white",
+                fontSize: 18,
+              }}
+            >
+              Economy Comfort
+            </Typography>
+            <div className="p-3">
+              {/* <Typography>Seats left: 9</Typography> */}
+              {/* <Divider /> */}
+              <Typography
+                style={{ color: "#479fe1", fontWeight: 700, fontSize: 24 }}
+              >
+                1 209 000 <span>UZS</span>
+              </Typography>
+              <Button
+                onClick={() => navigate("/buyTicket")}
+                className="w-full"
+                style={{
+                  color: "#2885cb",
+                  fontSize: "16px",
+                  padding: 20,
+                  //   marginBlock: 10,
+                  marginTop: 30,
+                }}
+              >
+                Go to issue
+              </Button>
+            </div>
+          </div>
+        </Col>
+        <Col xl={6}>
+          <div
+            className="hover:shadow-lg"
+            style={{
+              background: "#e8f1ff",
+              border: "none",
+              paddingBlock: 10,
+              borderRadius: 8,
+            }}
+          >
+            <Typography
+              style={{
+                background: "#ffc100",
+                padding: 5,
+                color: "white",
+                fontSize: 18,
+              }}
+            >
+              Business
+            </Typography>
+            <div className="p-3">
+              {/* <Typography>Seats left: 9</Typography> */}
+              {/* <Divider /> */}
+              <Typography
+                style={{ color: "#479fe1", fontWeight: 700, fontSize: 24 }}
+              >
+                1 209 000 <span>UZS</span>
+              </Typography>
+              <Button
+                onClick={() => navigate("/buyTicket")}
+                className="w-full"
+                style={{
+                  color: "#2885cb",
+                  fontSize: "16px",
+                  padding: 20,
+                  //   marginBlock: 10,
+                  marginTop: 30,
+                }}
+              >
+                Go to issue
+              </Button>
+            </div>
+          </div>
+        </Col>{" "}
       </Row>
     </div>
   );

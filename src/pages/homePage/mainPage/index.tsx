@@ -23,7 +23,6 @@ export default function MainLayout() {
   const [selectedWay, setSelectedWay] = useState<"oneWay" | "roundTrip">(
     "roundTrip"
   );
-  const [floor, setFloor] = useFloor();
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const onFinish = (values: any) => {
@@ -337,8 +336,8 @@ export default function MainLayout() {
                         <InputNumber
                           min={1}
                           max={10}
-                          value={floor}
-                          onChange={(value) => setFloor(value)}
+                          // value={floor}
+                          // onChange={(value) => setFloor(value)}
                           style={{ width: 80 }}
                           controls={{
                             upIcon: <span>▲</span>,
@@ -346,27 +345,6 @@ export default function MainLayout() {
                           }}
                         />
                       </Select.Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-
-                <Col xs={24} sm={12} md={8} lg={4}>
-                  <Form.Item
-                    name="paymentMethod"
-                    label="Payment method"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please select payment method",
-                      },
-                    ]}
-                  >
-                    <Select
-                      placeholder="Payment method"
-                      style={{ width: "100%", height: "60px", fontWeight: 700 }}
-                    >
-                      <Select.Option value="card">Credit Card</Select.Option>
-                      <Select.Option value="paypal">PayPal</Select.Option>
                     </Select>
                   </Form.Item>
                 </Col>

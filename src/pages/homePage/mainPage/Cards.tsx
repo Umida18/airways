@@ -1,17 +1,7 @@
-import {
-  Badge,
-  Button,
-  Card,
-  Col,
-  Layout,
-  Row,
-  Select,
-  Typography,
-} from "antd";
+import { Button, Card, Col, Row, Select, Typography } from "antd";
 import { useState } from "react";
 import { HiOutlineX } from "react-icons/hi";
 import { IoCheckmarkOutline, IoSearch } from "react-icons/io5";
-const { Header } = Layout;
 
 interface ITickets {
   city: string;
@@ -30,6 +20,7 @@ const Tickets: React.FC<TicketsProps> = ({ data }) => {
   const hoverCard = (index: number) => {
     setIsHovered(index);
   };
+
   const leaveCard = () => {
     setIsHovered(null);
   };
