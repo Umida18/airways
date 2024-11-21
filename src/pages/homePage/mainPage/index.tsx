@@ -24,10 +24,17 @@ export default function MainLayout() {
     "roundTrip"
   );
   const navigate = useNavigate();
+
   const [form] = Form.useForm();
+
   const onFinish = (values: any) => {
-    console.log("Form values:", values);
-    navigate("/flightsPage");
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    } else {
+      console.log("Form values:", values);
+      navigate("/flightsPage");
+    }
   };
 
   const navItems = [
@@ -254,7 +261,7 @@ export default function MainLayout() {
                   </Row>
                 </Col>
 
-                <Col xs={24} sm={12} md={8} lg={4}>
+                <Col xs={24} sm={12} md={8} lg={6}>
                   <Form.Item
                     name="from"
                     label="From"
@@ -273,7 +280,7 @@ export default function MainLayout() {
                   </Form.Item>
                 </Col>
 
-                <Col xs={24} sm={12} md={8} lg={4}>
+                <Col xs={24} sm={12} md={8} lg={6}>
                   <Form.Item
                     name="to"
                     label="To"
@@ -291,7 +298,7 @@ export default function MainLayout() {
                   </Form.Item>
                 </Col>
 
-                <Col xs={24} sm={24} md={8} lg={8}>
+                <Col xs={24} sm={24} md={8} lg={6}>
                   <Form.Item
                     name="dates"
                     label="Date"
@@ -317,7 +324,7 @@ export default function MainLayout() {
                   </Form.Item>
                 </Col>
 
-                <Col xs={24} sm={12} md={8} lg={4}>
+                <Col xs={24} sm={12} md={8} lg={6}>
                   <Form.Item
                     name="passengers"
                     label="Passengers"
