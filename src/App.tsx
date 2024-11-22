@@ -1,7 +1,6 @@
 import { ConfigProvider } from "antd";
 import "./App.css";
 
-import HomePage from "./pages/homePage/homePage";
 import {
   BrowserRouter,
   Navigate,
@@ -22,6 +21,11 @@ import { Airplanes } from "./pages/adminPage/airplanes";
 import { AdminLayout } from "./components/adminLayout";
 import { Admins } from "./pages/adminPage/admins";
 import { Users } from "./pages/adminPage/users";
+import MainLayout from "./pages/homePage/mainPage";
+import LoginPage from "./login/login";
+import FlightsPage from "./pages/homePage/Tickets/Tickets";
+import { FloorProvider } from "./pages/homePage/mainPage/FloorContext";
+import BuyTicket from "./pages/homePage/buyTicket/buyTicket";
 
 interface ProtectedRouteProps {
   isAuthenticated: boolean;
@@ -45,6 +49,7 @@ const queryClient = new QueryClient({
     },
   },
 });
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
@@ -53,7 +58,7 @@ function App() {
       <ConfigProvider
         theme={{
           token: {
-            colorPrimary: "rgb(5,62,139)",
+            colorPrimary: "#479fe1",
           },
         }}
       >
@@ -61,40 +66,46 @@ function App() {
           <ReactQueryDevtools initialIsOpen={false} />
           <CacheProvider value={cache}>
             {/* <Provider store={store}> */}
-            <Routes>
-              <Route path="/" element={<HomePage />} />
+            <FloorProvider>
+              <Routes>
+                <Route path="/" element={<MainLayout />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<LoginPage />} />
+                <Route path="/flightsPage" element={<FlightsPage />} />
+                <Route path="/buyTicket" element={<BuyTicket />} />
 
-              <Route
-                path="/superAdmin/"
-                element={
-                  <ProtectedRoute isAuthenticated={isAuthenticated}>
-                    <Layout>
-                      <Outlet />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              >
-                <Route path="admins" element={<SuperAdmins />} />
-              </Route>
-            </Routes>{" "}
-            <Routes>
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute isAuthenticated={isAuthenticated}>
-                    <AdminLayout>
-                      <Outlet />
-                    </AdminLayout>
-                  </ProtectedRoute>
-                }
-              >
-                <Route path="admins" element={<Admins />} />
-                <Route path="users" element={<Users />} />
-                <Route path="tickets" element={<Tickets />} />
-                <Route path="flights" element={<Flights />} />
-                <Route path="airplanes" element={<Airplanes />} />
-              </Route>
-            </Routes>
+                <Route
+                  path="/superAdmin/"
+                  element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <Layout>
+                        <Outlet />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route path="admins" element={<SuperAdmins />} />
+                </Route>
+              </Routes>
+              <Routes>
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                      <AdminLayout>
+                        <Outlet />
+                      </AdminLayout>
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route path="admins" element={<Admins />} />
+                  <Route path="users" element={<Users />} />
+                  <Route path="tickets" element={<Tickets />} />
+                  <Route path="flights" element={<Flights />} />
+                  <Route path="airplanes" element={<Airplanes />} />
+                </Route>
+              </Routes>
+            </FloorProvider>
             {/* </Provider> */}
           </CacheProvider>
         </QueryClientProvider>
