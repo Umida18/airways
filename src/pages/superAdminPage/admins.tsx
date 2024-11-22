@@ -12,6 +12,7 @@ import { useForm } from "antd/es/form/Form";
 import { AutoForm, FieldType } from "../../components/auto-form";
 import axios from "axios";
 import { User } from "../../types";
+import api from "../../components/api";
 
 export function SuperAdmins() {
   const [form] = useForm();
@@ -25,9 +26,9 @@ export function SuperAdmins() {
 
   const fetchAdmins = async () => {
     try {
-      const response = await axios.get(
-        "https://4d71b68cb41c81df.mokky.dev/admins"
-      );
+      const response = await api.get("/user/User-role/ADMIN/owner");
+      console.log("response", response.data);
+
       setAdmins(response.data);
     } catch (error) {
       message.error("Failed to fetch admins");
