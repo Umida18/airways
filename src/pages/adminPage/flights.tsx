@@ -1,23 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { Table, Button, Input, Space, Drawer, message } from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  SearchOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Table, Button, Space, Drawer, message, Select } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { useForm } from "antd/es/form/Form";
-
+const { Option } = Select;
 import { AutoForm, FieldType } from "../../components/auto-form";
-import axios from "axios";
 import { AirplaneType, Airports, FlightType } from "../../types";
+import api from "../../components/api";
 
-const Status = ["ON_TIME", "DELAYED", "CANCELLED"];
+const Status = ["ON_TIME", "DELAYED"];
 
 export function Flights() {
   const [form] = useForm();
-  const [editingFlight, setEditingFlight] = useState<FlightType | null>(null);
+  // const [editingFlight, setEditingFlight] = useState<FlightType | null>(null);
   const [flight, setFlight] = useState<FlightType[]>([]);
   const [airplanes, setAirplanes] = useState<AirplaneType[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -29,9 +23,7 @@ export function Flights() {
 
   const fetchFligths = async () => {
     try {
-      const response = await axios.get(
-        "https://4d71b68cb41c81df.mokky.dev/flights"
-      );
+      const response = await api.get("/flight/all-flight");
       setFlight(response.data);
     } catch (error) {
       message.error("Failed to fetch flights");
@@ -39,9 +31,7 @@ export function Flights() {
   };
   const fetchAirplanes = async () => {
     try {
-      const response = await axios.get(
-        "https://4d71b68cb41c81df.mokky.dev/airplanes"
-      );
+      const response = await api.get("/airplane/get-all");
       setAirplanes(response.data);
     } catch (error) {
       message.error("Failed to fetch flights");
@@ -49,38 +39,57 @@ export function Flights() {
   };
 
   const handleAdd = () => {
-    setEditingFlight(null);
+    // setEditingFlight(null);
     form.resetFields();
     setIsModalVisible(true);
   };
 
-  const handleEdit = (flight: FlightType) => {
-    setEditingFlight(flight);
-    form.setFieldsValue(flight);
-    setIsModalVisible(true);
-  };
+  // const handleEdit = (flight: FlightType) => {
+  //   setEditingFlight(flight);
+  //   form.setFieldsValue(flight);
+  //   setIsModalVisible(true);
+  // };
 
-  const handleDelete = async (id: string) => {
-    console.log(id);
-    try {
-      const response = await axios.delete(
-        `https://4d71b68cb41c81df.mokky.dev/flights/${id}`
-      );
-      console.log(response.data);
+  // const handleDelete = async (id: string) => {
+  //   console.log(id);
+  //   try {
+  //     const response = await api.delete(`/flight/delete/${id}`);
+  //     console.log(response.data);
 
-      message.success("flight deleted successfully");
-      fetchFligths();
-    } catch (error) {
-      message.error("Failed to delete flight");
-      console.log(error);
-    }
-  };
-
+  //     message.success("flight deleted successfully");
+  //     fetchFligths();
+  //   } catch (error) {
+  //     message.error("Failed to delete flight");
+  //     console.log(error);
+  //   }
+  // };
+  const updateFlightStatus = useCallback(
+    async (id: string, newStatus: string) => {
+      try {
+        await api.put(`/flight/update-flight/${id}`, {
+          ...flight,
+          status: newStatus,
+        });
+        fetchFligths();
+        message.success("Parvoz holati muvaffaqiyatli yangilandi");
+      } catch (error) {
+        console.error("Parvoz holatini yangilashda xatolik:", error);
+        message.error("Parvoz holatini yangilashda xatolik yuz berdi");
+      }
+    },
+    []
+  );
   const columns = [
     {
       title: "AIRPLANE",
       dataIndex: "airplane",
       key: "airplane",
+      render: (airplane: any) => {
+        const air = airplanes.find((item) => {
+          return item.id === airplane.id;
+        });
+        if (air) return air.aircraftType;
+      },
     },
     {
       title: "flightNumber",
@@ -108,12 +117,25 @@ export function Flights() {
       key: "arrivalTime",
     },
     {
+      title: "active",
+      dataIndex: "",
+      key: "active",
+      render: (_: string, record: FlightType) => {
+        console.log(record);
+        return record.flightStatus == "ON_TIME" ? (
+          <p className="text-green-400 font-bold">Active</p>
+        ) : (
+          <p className="text-red-500 font-bold">Inactive</p>
+        );
+      },
+    },
+    {
       title: "passengers",
       dataIndex: "airplane",
       key: "airplane",
-      render: (airplane: string) => {
+      render: (airplane: any) => {
         const air = airplanes.find((item) => {
-          return item.id === airplane;
+          return item.id === airplane.id;
         });
         if (air)
           return air.aircraftType == "JET"
@@ -125,32 +147,67 @@ export function Flights() {
     },
     {
       title: "STATUS",
-      dataIndex: "status",
-      key: "status",
-    },
+      dataIndex: "flightStatus",
+      key: "flightStatus",
+      render: (status: string, record: FlightType) => {
+        const handleChange = (value: string) => {
+          updateFlightStatus(record.id, value);
+        };
 
-    {
-      title: "Action",
-      key: "action",
-      render: (text: string, record: FlightType) => {
-        console.log(record);
+        const getColor = (s: string) => {
+          switch (s) {
+            case "ON_TIME":
+              return "text-green-400";
+            case "DELAYED":
+              return "text-red-500";
+
+            default:
+              return "";
+          }
+        };
 
         return (
-          <span className="space-x-2">
-            <Button
-              icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
-              className="text-blue-500 hover:text-blue-700"
-            />
-            <Button
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record.id)}
-              className="text-red-500 hover:text-red-700"
-            />
-          </span>
+          <Select
+            value={status}
+            onChange={handleChange}
+            className={`font-bold ${getColor(status)}`}
+          >
+            <Option
+              key={status}
+              value="ON_TIME"
+              className="text-green-400 font-bold"
+            >
+              ON TIME
+            </Option>
+            <Option
+              key={status}
+              value="DELAYED"
+              className="text-yellow-500 font-bold"
+            >
+              DELAYED
+            </Option>
+          </Select>
         );
       },
     },
+
+    // {
+    //   title: "Action",
+    //   key: "action",
+    //   render: (text: string, record: FlightType) => {
+    //     console.log(record);
+
+    //     return (
+    //       <span className="space-x-2">
+    //         <Button
+    //           icon={<DeleteOutlined />}
+    //           onClick={() => handleDelete(record.id)}
+    //           className="text-red-500 hover:text-red-700"
+    //         />
+    //       </span>
+    //     );
+    //   },
+    // },
   ];
   const airportOptions = Airports.map((item: string) => {
     return {
@@ -167,7 +224,7 @@ export function Flights() {
   const airplaneOptions = airplanes.map((item: AirplaneType) => {
     return {
       label: item.model,
-      value: item.model,
+      value: item.id,
     };
   });
 
@@ -221,22 +278,12 @@ export function Flights() {
       ] as FieldType[],
     [flight]
   );
-
   const onFinish = async (values: Record<string, any>) => {
     try {
-      if (editingFlight) {
-        await axios.put(
-          `https://4d71b68cb41c81df.mokky.dev/flights/${editingFlight.id}`,
-          values
-        );
-        message.success("Flight updated successfully");
-      } else {
-        await axios.post("https://4d71b68cb41c81df.mokky.dev/flights", {
-          ...values,
-          id: uuidv4(),
-        });
-        message.success("Flight added successfully");
-      }
+      await api.post("/flight/create-flight", {
+        ...values,
+      });
+      message.success("Flight added successfully");
       setIsModalVisible(false);
       fetchFligths();
     } catch (error) {
@@ -246,18 +293,12 @@ export function Flights() {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex justify-between items-center mb-4">
-          <Input
-            placeholder="Search flights"
-            prefix={<SearchOutlined />}
-            className="max-w-xs"
-          />
-
+        <div className="flex justify-end items-center mb-4">
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={handleAdd}
-            className="bg-green-500 hover:bg-green-700"
+            className="bg-blue-500 hover:bg-blue-700"
           >
             Add New Flight
           </Button>

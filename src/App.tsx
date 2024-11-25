@@ -19,13 +19,12 @@ import createCache from "@emotion/cache";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Airplanes } from "./pages/adminPage/airplanes";
 import { AdminLayout } from "./components/adminLayout";
-import { Admins } from "./pages/adminPage/admins";
-import { Users } from "./pages/adminPage/users";
 import MainLayout from "./pages/homePage/mainPage";
 import LoginPage from "./login/login";
 import FlightsPage from "./pages/homePage/Tickets/Tickets";
 import { FloorProvider } from "./pages/homePage/mainPage/FloorContext";
 import BuyTicket from "./pages/homePage/buyTicket/buyTicket";
+import { Users } from "./pages/adminPage/users";
 
 interface ProtectedRouteProps {
   isAuthenticated: boolean;
@@ -34,7 +33,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ isAuthenticated, children }: ProtectedRouteProps) => {
   if (!isAuthenticated) {
-    return <Navigate to="/admin/admins" />;
+    return <Navigate to="/admin/users" />;
   }
   return children;
 };
@@ -98,7 +97,6 @@ function App() {
                     </ProtectedRoute>
                   }
                 >
-                  <Route path="admins" element={<Admins />} />
                   <Route path="users" element={<Users />} />
                   <Route path="tickets" element={<Tickets />} />
                   <Route path="flights" element={<Flights />} />

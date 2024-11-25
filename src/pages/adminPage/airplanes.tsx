@@ -1,17 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { Table, Button, Input, Space, Drawer, message } from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  SearchOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { Table, Button, Space, Drawer, message } from "antd";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useForm } from "antd/es/form/Form";
 
 import { AutoForm, FieldType } from "../../components/auto-form";
-import axios from "axios";
 import { AirplaneType } from "../../types";
+import api from "../../components/api";
 
 export function Airplanes() {
   const [form] = useForm();
@@ -27,9 +21,7 @@ export function Airplanes() {
 
   const fetchAirplanes = async () => {
     try {
-      const response = await axios.get(
-        "https://4d71b68cb41c81df.mokky.dev/airplanes"
-      );
+      const response = await api.get("/airplane/get-all");
       setAirplanes(response.data);
     } catch (error) {
       message.error("Failed to fetch airplanes");
@@ -51,9 +43,7 @@ export function Airplanes() {
   const handleDelete = async (id: string) => {
     console.log(id);
     try {
-      const response = await axios.delete(
-        `https://4d71b68cb41c81df.mokky.dev/airplanes/${id}`
-      );
+      const response = await api.delete(`/airplane/delete${id}`);
       console.log(response.data);
 
       message.success("airplanes deleted successfully");
@@ -67,15 +57,11 @@ export function Airplanes() {
   const onFinish = async (values: Record<string, any>) => {
     try {
       if (editingAirplane) {
-        await axios.put(
-          `https://4d71b68cb41c81df.mokky.dev/airplanes/${editingAirplane.id}`,
-          values
-        );
+        await api.put(`/airplane/update-airplane${editingAirplane.id}`, values);
         message.success("airplanes updated successfully");
       } else {
-        await axios.post("https://4d71b68cb41c81df.mokky.dev/airplanes", {
+        await api.post("/airplane/create-airplane", {
           ...values,
-          // id: uuidv4(),
         });
         message.success("airplanes added successfully");
       }
@@ -93,9 +79,9 @@ export function Airplanes() {
       key: "model",
     },
     {
-      title: "manufacture",
-      dataIndex: "manufacture",
-      key: "manufacture",
+      title: "manufacturer",
+      dataIndex: "manufacturer",
+      key: "manufacturer",
     },
     {
       title: "aircraftType",
@@ -119,7 +105,7 @@ export function Airplanes() {
     {
       title: "Action",
       key: "action",
-      render: (text: string, record: AirplaneType) => {
+      render: (_: string, record: AirplaneType) => {
         console.log(record);
 
         return (
@@ -159,8 +145,8 @@ export function Airplanes() {
           rules: [{ required: true, message: "Пустое поле!" }],
         },
         {
-          label: "manufacture",
-          name: "manufacture",
+          label: "manufacturer",
+          name: "manufacturer",
           rules: [{ required: true, message: "Пустое поле!" }],
         },
         {
@@ -177,18 +163,12 @@ export function Airplanes() {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex justify-between items-center mb-4">
-          <Input
-            placeholder="Search flights"
-            prefix={<SearchOutlined />}
-            className="max-w-xs"
-          />
-
+        <div className="flex justify-end items-center mb-4">
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={handleAdd}
-            className="bg-green-500 hover:bg-green-700"
+            className="bg-blue-500 hover:bg-blue-700"
           >
             Add New airplanes
           </Button>

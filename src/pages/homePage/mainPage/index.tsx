@@ -202,7 +202,7 @@ export default function MainLayout() {
             ]}
           />
           <div className="flex gap-2">
-            <Button onClick={() => navigate("./admin/admins")}>Admin</Button>
+            <Button onClick={() => navigate("./admin/users")}>Admin</Button>
             <Button onClick={() => navigate("./superAdmin/admins")}>
               Super Admin
             </Button>

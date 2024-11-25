@@ -2,7 +2,7 @@ import { Col, Form, Input, InputNumber, Row, Spin } from "antd/lib";
 import React from "react";
 import { Select, type FormInstance, type SelectProps } from "antd";
 import { Rule } from "antd/es/form";
-import FileUploadToStrapi from "../upload";
+// import FileUploadToStrapi from "../upload";
 import TextArea from "antd/lib/input/TextArea";
 
 export type FieldType = {
@@ -54,8 +54,8 @@ export const Field = ({
         return <Input.Password />;
       case "textarea":
         return <TextArea />;
-      case "file":
-        return <FileUploadToStrapi />;
+      // case "file":
+      //   return <FileUploadToStrapi />;
     }
   };
 
