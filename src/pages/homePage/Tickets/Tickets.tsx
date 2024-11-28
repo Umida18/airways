@@ -3,6 +3,7 @@ import { RightOutlined } from "@ant-design/icons";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { GiAirplaneArrival, GiAirplaneDeparture } from "react-icons/gi";
 import CardPrice from "./cardPrice";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 // const { Text, Title } = Typography;
 const { Header, Content } = Layout;

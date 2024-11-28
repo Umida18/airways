@@ -1,114 +1,194 @@
-// BuyTicket.tsx
-import { useFloor } from "../mainPage/FloorContext";
-import {
-  Card,
-  Form,
-  Input,
-  Select,
-  Radio,
-  DatePicker,
-  Typography,
-  Row,
-  Col,
-} from "antd";
+import { useState, useEffect } from "react";
+// import { useSearchParams } from "next/navigation";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+// import { Calendar } from "@/components/ui/calendar";
+
+import { useSearchParams } from "react-router-dom";
+import { Col, DatePicker, Form, Row, Select, Typography, Radio } from "antd";
+import api from "@/api/api";
 
 const { Text } = Typography;
 const { Option } = Select;
-const BuyTicket = () => {
-  const [floor] = useFloor();
-  const [form] = Form.useForm();
+
+interface PassengerForm {
+  familiya: string;
+  ism: string;
+  tugilganSana: Date | undefined;
+  fuqarolik: string;
+  jinsingiz: "erkak" | "ayol";
+  hujjatTuri: string;
+  seriyaRaqami: string;
+  amalQilishMuddati: Date | undefined;
+}
+
+export function BuyTicket() {
+  const [searchParams] = useSearchParams();
+  const [passengerForms, setPassengerForms] = useState<PassengerForm[]>([]);
+  const passengers1 = searchParams.get("passengers");
+
+  useEffect(() => {
+    const passengers = Number(searchParams.get("passengers") || passengers1);
+    console.log("passengers", passengers);
+
+    setPassengerForms(
+      Array(passengers)
+        .fill(null)
+        .map(() => ({
+          familiya: "",
+          ism: "",
+          tugilganSana: undefined,
+          fuqarolik: "O'zbekiston",
+          jinsingiz: "erkak" as const,
+          hujjatTuri: "pasport",
+          seriyaRaqami: "",
+          amalQilishMuddati: undefined,
+        }))
+    );
+  }, [searchParams]);
+
+  const handleInputChange = (
+    index: number,
+    field: keyof PassengerForm,
+    value: string | Date
+  ) => {
+    const updatedForms = [...passengerForms];
+    updatedForms[index] = { ...updatedForms[index], [field]: value };
+    setPassengerForms(updatedForms);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await api.post("/booking/create-booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(passengerForms),
+      });
+      console.log("Response:", response);
+
+      // if (response.ok) {
+      //   window.location.href = "/booking-confirmation";
+      // } else {
+      //   console.error("Submission failed");
+      // }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="!w-[1168px] ">
-        <Row className="!w-[100%]">
-          {Array.from({ length: floor }, (_, __) => (
-            <Card
-              style={{
-                width: "100%",
-                background: "#f5f8fa",
-                border: 0,
-                marginBlock: "20px",
-              }}
-            >
-              <Text
-                type="danger"
-                style={{
-                  marginBottom: 16,
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                Barcha kataklar to'ldirilishi, yozuvlar lotin alfavitida
-                kiritilishi shart
-              </Text>
-              <Form form={form} layout="vertical">
-                <Row gutter={[16, 16]}>
-                  <Col xl={6}>
-                    <Form.Item name="familiya" label="Familiya">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col xl={6}>
-                    <Form.Item name="ism" label="Ism">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col xl={6}>
-                    <Form.Item name="tugilganSana" label="Tug'ilgan sanangiz">
-                      <DatePicker style={{ width: "100%" }} />
-                    </Form.Item>
-                  </Col>
-                  <Col xl={6}>
-                    <Form.Item name="fuqarolik" label="Fuqarolik">
-                      <Select defaultValue="O'zbekiston">
-                        <Option value="O'zbekiston">O'zbekiston</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                  <Col xl={6}>
-                    <Form.Item name="jinsingiz" label="Jinsingiz">
-                      <Radio.Group style={{ width: "100%", display: "flex" }}>
-                        <Radio.Button style={{ width: "100%" }} value="erkak">
-                          Erkak
-                        </Radio.Button>
-                        <Radio.Button style={{ width: "100%" }} value="ayol">
-                          Ayol
-                        </Radio.Button>
-                      </Radio.Group>
-                    </Form.Item>
-                  </Col>
-
-                  <Col xl={6}>
-                    <Form.Item name="hujjatTuri" label="Hujjat turi">
-                      <Select defaultValue="pasport">
-                        <Option value="pasport">Pasport</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-
-                  <Col xl={6}>
-                    <Form.Item name="seriyaRaqami" label="Seriyasi/raqami">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-
-                  <Col xl={6}>
-                    <Form.Item
-                      name="amalQilishMuddati"
-                      label="Amal qilish muddati"
-                    >
-                      <DatePicker style={{ width: "100%" }} />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Form>
-            </Card>
-          ))}
-        </Row>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {passengerForms.map((form, index) => (
+        <Col key={index} span={24}>
+          <Card className="w-full bg-white border-0 shadow-sm">
+            <Text className="block mb-4 text-center text-red-500">
+              Barcha kataklar to&apos;ldirilishi, yozuvlar lotin alfavitida
+              kiritilishi shart
+            </Text>
+            <Form<PassengerForm> layout="vertical">
+              <Row gutter={16}>
+                <Col xs={24} sm={12} md={6}>
+                  <Form.Item
+                    name="username"
+                    label="username"
+                    rules={[
+                      {
+                        required: true,
+                        message: "username kiritish shart",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={6}>
+                  <Form.Item
+                    name="firstName"
+                    label="firstName"
+                    rules={[
+                      { required: true, message: "firstName kiritish shart" },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={6}>
+                  <Form.Item
+                    name="tugilganSana"
+                    label="Tug'ilgan sanangiz"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tug'ilgan sana kiritish shart",
+                      },
+                    ]}
+                  >
+                    <DatePicker className="w-full" />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={6}>
+                  <Form.Item
+                    name="citizenship"
+                    label="citizenship"
+                    initialValue="O'zbekiston"
+                  >
+                    <Select>
+                      <Option value="O'zbekiston">O&apos;zbekiston</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+                {/* <Col xs={24} sm={12} md={6}>
+                  <Form.Item
+                    name="hujjatTuri"
+                    label="Hujjat turi"
+                    initialValue="pasport"
+                  >
+                    <Select>
+                      <Option value="pasport">Pasport</Option>
+                    </Select>
+                  </Form.Item>
+                </Col> */}
+                <Col xs={24} sm={12} md={6}>
+                  <Form.Item
+                    name="serialNumber"
+                    label="Seriyasi/raqami"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Seriya/raqam kiritish shart",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={6}>
+                  <Form.Item
+                    name="validityPeriod"
+                    label="Amal qilish muddati"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Amal qilish muddatini kiritish shart",
+                      },
+                    ]}
+                  >
+                    <DatePicker className="w-full" />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Form>
+          </Card>
+        </Col>
+      ))}
+      <div className="flex justify-center">
+        <Button type="submit">Buyurtma berish</Button>
       </div>
-    </div>
+    </form>
   );
-};
-
-export default BuyTicket;
+}
