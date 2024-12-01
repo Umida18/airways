@@ -1,13 +1,13 @@
 import { ReactNode, createContext, useContext, useState } from "react";
 
 interface Flight {
-  active: boolean;
+  arrivalTime: string;
   bron: boolean;
   classType: string;
-  created: string;
-  id: string;
-  modified: string;
+  departureTime: string;
+  flightNumber: string;
   price: number;
+  ticketId: string;
 }
 interface FlightsContextProps {
   flights: Flight[];

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -29,16 +29,16 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const path = location.pathname.split("/superAdmin/")[1];
   console.log("path", path);
-  const [selectedKey, setSelectedKey] = useState<string>(path);
+  // const [selectedKey, setSelectedKey] = useState<string>(path);
   let title = path.charAt(0).toUpperCase() + path.slice(1);
-  const handleClick = (e: any) => {
-    setSelectedKey(e.key);
-  };
-  console.log(title);
+  // const handleClick = (e: any) => {
+  //   setSelectedKey(e.key);
+  // };
+  // console.log(title);
 
-  useEffect(() => {
-    setSelectedKey(location.pathname.slice(1));
-  }, []);
+  // useEffect(() => {
+  //   setSelectedKey(location.pathname.slice(1));
+  // }, []);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -80,7 +80,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           style={{ background: "rgb(5,62,139)", color: "white" }}
           mode="inline"
           selectedKeys={["/superAdmin/admins"]}
-          onClick={handleClick}
+          // onClick={handleClick}
           items={[
             {
               key: "/superAdmin/admins",

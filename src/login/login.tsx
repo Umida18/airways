@@ -1,6 +1,5 @@
 import {
   Button,
-  Checkbox,
   Col,
   DatePicker,
   Dropdown,
@@ -76,7 +75,10 @@ const LoginPage = () => {
       }
 
       localStorage.setItem("token", token);
-      message.success("Login successful!");
+      // localStorage.setItem("userId", userId);
+
+      message.success("Login successfully!");
+
       navigate("/");
     } catch (error: any) {
       const errorMessage =

@@ -1,24 +1,22 @@
 import { useEffect, useState } from "react";
 import { Table, message } from "antd";
 
-import axios from "axios";
 import { User } from "../../types";
+import api from "../../components/api";
 
 export function Users() {
-  const [users, setusers] = useState<User[]>([]);
+  const [admins, setAdmins] = useState<User[]>([]);
 
   useEffect(() => {
-    fetchusers();
+    fetchAdmins();
   }, []);
 
-  const fetchusers = async () => {
+  const fetchAdmins = async () => {
     try {
-      const response = await axios.get(
-        "https://4d71b68cb41c81df.mokky.dev/users"
-      );
-      setusers(response.data);
+      const response = await api.get("/user/all-user");
+      setAdmins(response.data);
     } catch (error) {
-      message.error("Failed to fetch users");
+      message.error("Failed to fetch admins");
     }
   };
 
@@ -28,7 +26,7 @@ export function Users() {
       dataIndex: "id",
       key: "id",
       render: (value: any) => {
-        const n = users.find((user) => user.id == value);
+        const n = admins.find((admin) => admin.id == value);
         return n ? <p>{n.username + " " + n.surname}</p> : "-";
       },
     },
@@ -38,11 +36,11 @@ export function Users() {
       dataIndex: "email",
       key: "email",
     },
-    {
-      title: "Password",
-      dataIndex: "password",
-      key: "password",
-    },
+    // {
+    //   title: "Password",
+    //   dataIndex: "password",
+    //   key: "password",
+    // },
     {
       title: "Role",
       dataIndex: "role",
@@ -78,7 +76,7 @@ export function Users() {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white rounded-lg shadow p-6">
-        <Table columns={columns} dataSource={users} />
+        <Table columns={columns} dataSource={admins} />
       </div>
     </div>
   );

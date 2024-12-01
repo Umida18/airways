@@ -32,7 +32,7 @@ export type Airport =
   | "TERMIZ"
   | "JIZZAKH"
   | "KHIVA";
-export type FlightStatus = "ON_TIME" | "DELAYED" | "CANCELLED";
+export type FlightStatus = "ON_TIME" | "DELAYED";
 
 export interface FlightType {
   id: string;
@@ -42,7 +42,7 @@ export interface FlightType {
   arrivalAirport: Airport;
   departureTime: string;
   arrivalTime: string;
-  status: FlightStatus;
+  flightStatus: FlightStatus;
 }
 export interface AirplaneType {
   id: string;

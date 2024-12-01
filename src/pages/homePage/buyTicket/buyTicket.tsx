@@ -1,194 +1,195 @@
 import { useState, useEffect } from "react";
-// import { useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-// import { Calendar } from "@/components/ui/calendar";
-
 import { useSearchParams } from "react-router-dom";
-import { Col, DatePicker, Form, Row, Select, Typography, Radio } from "antd";
+import { Col, DatePicker, Form, Row, Select, Typography } from "antd";
 import api from "@/api/api";
+import { useFlights } from "@/context/FlightsContext";
+import dayjs from "dayjs";
 
 const { Text } = Typography;
 const { Option } = Select;
 
 interface PassengerForm {
-  familiya: string;
-  ism: string;
-  tugilganSana: Date | undefined;
-  fuqarolik: string;
-  jinsingiz: "erkak" | "ayol";
-  hujjatTuri: string;
-  seriyaRaqami: string;
-  amalQilishMuddati: Date | undefined;
+  username: string;
+  firstName: string;
+  birthDate: string;
+  citizenship: string;
+  serialNumber: string;
+  validityPeriod: string;
 }
 
 export function BuyTicket() {
   const [searchParams] = useSearchParams();
   const [passengerForms, setPassengerForms] = useState<PassengerForm[]>([]);
-  const passengers1 = searchParams.get("passengers");
+  const passengers = Number(searchParams.get("passengers") || "1");
+  const classTypeParams = searchParams.get("classType");
+  const [form] = Form.useForm();
+  const { flights } = useFlights();
+  const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
 
   useEffect(() => {
-    const passengers = Number(searchParams.get("passengers") || passengers1);
-    console.log("passengers", passengers);
-
     setPassengerForms(
       Array(passengers)
         .fill(null)
         .map(() => ({
-          familiya: "",
-          ism: "",
-          tugilganSana: undefined,
-          fuqarolik: "O'zbekiston",
-          jinsingiz: "erkak" as const,
-          hujjatTuri: "pasport",
-          seriyaRaqami: "",
-          amalQilishMuddati: undefined,
+          username: "",
+          firstName: "",
+          birthDate: "",
+          citizenship: "O'zbekiston",
+          serialNumber: "",
+          validityPeriod: "",
         }))
     );
-  }, [searchParams]);
+    selectTickets();
+  }, [searchParams, passengers, flights]);
 
-  const handleInputChange = (
-    index: number,
-    field: keyof PassengerForm,
-    value: string | Date
-  ) => {
-    const updatedForms = [...passengerForms];
-    updatedForms[index] = { ...updatedForms[index], [field]: value };
-    setPassengerForms(updatedForms);
+  const selectTickets = () => {
+    const selected: string[] = [];
+
+    const availableTickets = flights.filter(
+      (ticket) => ticket.classType === classTypeParams && !ticket.bron
+    );
+    const count = Math.min(passengers, availableTickets.length);
+    selected.push(
+      ...availableTickets.slice(0, count).map((ticket) => ticket.ticketId)
+    );
+
+    if (selected.length < passengers) {
+      console.error("Not enough tickets available for all passengers");
+      alert("Chipta yetarli emas! Iltimos, boshqa chipta tanlang.");
+      setSelectedTickets([]);
+    } else {
+      setSelectedTickets(selected.slice(0, passengers));
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await api.post("/booking/create-booking", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(passengerForms),
-      });
-      console.log("Response:", response);
+  const handleSubmit = async (values: { passengers: PassengerForm[] }) => {
+    if (selectedTickets.length !== passengers) {
+      // alert("Yetarli chipta tanlanmagan. Iltimos, qaytadan urinib ko'ring.");
+      return;
+    }
+    const formatDate = (date: any) => {
+      return dayjs(date).format("YYYY-MM-DD");
+    };
 
-      // if (response.ok) {
-      //   window.location.href = "/booking-confirmation";
-      // } else {
-      //   console.error("Submission failed");
-      // }
+    const userId = localStorage.getItem("userId");
+
+    const bookingData = {
+      ticketIds: selectedTickets,
+      employees: values.passengers.map((passenger) => ({
+        ...passenger,
+        birthDate: formatDate(passenger.birthDate),
+        validityPeriod: formatDate(passenger.validityPeriod),
+      })),
+    };
+
+    try {
+      const response = await api.post(
+        `/booking/create-booking?userId=${userId}`,
+        bookingData
+      );
+      console.log("Booking created:", response);
+      // alert("Buyurtma muvaffaqiyatli yaratildi!");
+      // Navigate to success page or clear form
     } catch (error) {
       console.error("Error submitting form:", error);
+      // alert(
+      //   "Buyurtma yaratishda xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring."
+      // );
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {passengerForms.map((form, index) => (
+    <Form form={form} onFinish={handleSubmit} className="space-y-6">
+      {passengerForms.map((_, index) => (
         <Col key={index} span={24}>
           <Card className="w-full bg-white border-0 shadow-sm">
             <Text className="block mb-4 text-center text-red-500">
               Barcha kataklar to&apos;ldirilishi, yozuvlar lotin alfavitida
               kiritilishi shart
             </Text>
-            <Form<PassengerForm> layout="vertical">
-              <Row gutter={16}>
-                <Col xs={24} sm={12} md={6}>
-                  <Form.Item
-                    name="username"
-                    label="username"
-                    rules={[
-                      {
-                        required: true,
-                        message: "username kiritish shart",
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} sm={12} md={6}>
-                  <Form.Item
-                    name="firstName"
-                    label="firstName"
-                    rules={[
-                      { required: true, message: "firstName kiritish shart" },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} sm={12} md={6}>
-                  <Form.Item
-                    name="tugilganSana"
-                    label="Tug'ilgan sanangiz"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Tug'ilgan sana kiritish shart",
-                      },
-                    ]}
-                  >
-                    <DatePicker className="w-full" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} sm={12} md={6}>
-                  <Form.Item
-                    name="citizenship"
-                    label="citizenship"
-                    initialValue="O'zbekiston"
-                  >
-                    <Select>
-                      <Option value="O'zbekiston">O&apos;zbekiston</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                {/* <Col xs={24} sm={12} md={6}>
-                  <Form.Item
-                    name="hujjatTuri"
-                    label="Hujjat turi"
-                    initialValue="pasport"
-                  >
-                    <Select>
-                      <Option value="pasport">Pasport</Option>
-                    </Select>
-                  </Form.Item>
-                </Col> */}
-                <Col xs={24} sm={12} md={6}>
-                  <Form.Item
-                    name="serialNumber"
-                    label="Seriyasi/raqami"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Seriya/raqam kiritish shart",
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} sm={12} md={6}>
-                  <Form.Item
-                    name="validityPeriod"
-                    label="Amal qilish muddati"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Amal qilish muddatini kiritish shart",
-                      },
-                    ]}
-                  >
-                    <DatePicker className="w-full" />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Form>
+            <Row gutter={16}>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "username"]}
+                  label="Username"
+                  rules={[
+                    { required: true, message: "Username kiritish shart" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "firstName"]}
+                  label="First Name"
+                  rules={[
+                    { required: true, message: "First name kiritish shart" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "birthDate"]}
+                  label="Tug'ilgan sana"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Tug'ilgan sana kiritish shart",
+                    },
+                  ]}
+                >
+                  <DatePicker className="w-full" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "citizenship"]}
+                  label="Citizenship"
+                  initialValue="O'zbekiston"
+                >
+                  <Select>
+                    <Option value="O'zbekiston">O&apos;zbekiston</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "serialNumber"]}
+                  label="Seriyasi/raqami"
+                  rules={[
+                    { required: true, message: "Seriya/raqam kiritish shart" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "validityPeriod"]}
+                  label="Amal qilish muddati"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Amal qilish muddatini kiritish shart",
+                    },
+                  ]}
+                >
+                  <DatePicker className="w-full" />
+                </Form.Item>
+              </Col>
+            </Row>
           </Card>
         </Col>
       ))}
       <div className="flex justify-center">
         <Button type="submit">Buyurtma berish</Button>
       </div>
-    </form>
+    </Form>
   );
 }

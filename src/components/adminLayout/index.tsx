@@ -5,8 +5,17 @@ import {
   UploadOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Button, Layout as LayoutAntd, Menu, Modal, Typography } from "antd";
+import {
+  Button,
+  Layout as LayoutAntd,
+  Menu,
+  message,
+  Modal,
+  Typography,
+} from "antd";
 import { Link, useLocation } from "react-router-dom";
+import api from "../api";
+import { decodeToken } from "../me";
 const { Title } = Typography;
 const { Header, Sider, Content } = LayoutAntd;
 export const admin = [
@@ -26,6 +35,9 @@ export const admin = [
 ];
 export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [userId, setUserId] = useState<number | null>(null);
+
+  const [me, setMe] = useState();
   const location = useLocation();
   const path = location.pathname.split("/admin/")[1];
   console.log("path", path);
@@ -45,6 +57,31 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const showModal = () => {
     setIsModalOpen(true);
   };
+  useEffect(() => {
+    FetchMe();
+    handleGetUserId();
+  }, []);
+
+  const handleGetUserId = () => {
+    // Sizning tokeningiz
+    const token =
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzZXZhcmEiLCJpYXQiOjE3MzI0NTIzNzAsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC91ei5wcm8udXNtIiwiZXhwIjoxNzMyNTYwMzcwfQ.fjYCP30pxnhsznWg2w-AC7oRKU7bpdNMgAJzJzJRD9Q";
+
+    // Token orqali ID ni olish
+    const id = decodeToken(token);
+    setUserId(id);
+    console.log("id", id);
+  };
+
+  const FetchMe = async () => {
+    try {
+      const response = await api.get(`/user/find-by-id/${userId}`);
+      setMe(response.data);
+    } catch (error) {
+      message.error("Failed to fetch admins");
+    }
+  };
+  console.log("me", me);
 
   return (
     <LayoutAntd className="bg-white">
@@ -82,15 +119,6 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           selectedKeys={[selectedKey]}
           onClick={handleClick}
           items={[
-            {
-              key: "/admin/admins",
-              icon: <UserOutlined style={{ color: "white" }} />,
-              label: (
-                <Link to="admins" style={{ color: "white" }}>
-                  Admins
-                </Link>
-              ),
-            },
             {
               key: "/admin/users",
               icon: <UserOutlined style={{ color: "white" }} />,

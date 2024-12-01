@@ -3,13 +3,47 @@ import { IoIosInformationCircleOutline } from "react-icons/io";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useFlights } from "../../../context/FlightsContext";
 import { PriceComponent } from "../../../utils/utils";
+
+interface ITickets {
+  arrivalTime?: string;
+  bron?: boolean;
+  classType: string;
+  departureTime?: string;
+  flightNumber?: string;
+  price?: number;
+  ticketId?: string;
+  [key: string]: any;
+}
+
 const CardPrice = () => {
   const navigate = useNavigate();
+
   const { flights, setFlights } = useFlights();
 
   const [searchParams] = useSearchParams();
 
   const passengers = searchParams.get("passengers");
+
+  const colors = ["#479fe1", "#F1C40F", "#16a34a", "#8e44ad", "#e74c3c"];
+
+  const uniqueClassTypes = Array.from(
+    new Set(flights.map((flight) => flight.classType))
+  );
+
+  const getClassTypeColor = (classType: string) => {
+    const index = uniqueClassTypes.indexOf(classType);
+    return colors[index % colors.length];
+  };
+
+  const uniqueFlights = Object.values(
+    flights.reduce<Record<string, ITickets>>((acc, flight) => {
+      if (!acc[flight.classType]) {
+        acc[flight.classType] = flight;
+      }
+      return acc;
+    }, {})
+  );
+  console.log("uniqueFlights", uniqueFlights);
 
   return (
     <div className="mt-14">
@@ -29,7 +63,7 @@ const CardPrice = () => {
         information
       </Typography>
       <Row gutter={[20, 20]}>
-        {flights.map((flight) => (
+        {uniqueFlights.map((flight) => (
           <Col xl={6}>
             <div
               className="hover:shadow-lg"
@@ -42,12 +76,7 @@ const CardPrice = () => {
             >
               <Typography
                 style={{
-                  background:
-                    flight.classType === "ECONOMY"
-                      ? "#479fe1"
-                      : flight.classType === "BUSINESS"
-                      ? "#F1C40F"
-                      : "#16a34a",
+                  background: getClassTypeColor(flight.classType),
                   padding: 5,
                   color: "white",
                   fontSize: 18,
@@ -66,7 +95,9 @@ const CardPrice = () => {
                 </Typography>
                 <Button
                   onClick={() =>
-                    navigate(`/buyTicket?passengers=${passengers}`)
+                    navigate(
+                      `/buyTicket?passengers=${passengers}&classType=${flight.classType}`
+                    )
                   }
                   className="w-full"
                   style={{
