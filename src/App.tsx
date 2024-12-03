@@ -29,6 +29,8 @@ import { Users } from "./pages/adminPage/users";
 import DashboardPage from "./components/layout/layout";
 import { ProfileSettings } from "./components/profileSettings";
 import { OrdersHistory } from "./components/ordersHistory";
+import About from "./pages/homePage/about/about";
+import Question from "./pages/homePage/question/question";
 
 interface ProtectedRouteProps {
   isAuthenticated: boolean;
@@ -80,6 +82,8 @@ function App() {
                   <Route path="/dashboardPage" element={<DashboardPage />} />
                   <Route path="/profile" element={<ProfileSettings />} />
                   <Route path="/dashboardPage" element={<OrdersHistory />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/question" element={<Question />} />
                   {/* <Route path="/dashboardPage" element={<DashboardPage />} /> */}
 
                   <Route

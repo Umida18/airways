@@ -26,6 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { handleApiError } from "@/utils/apiErrorHandler";
 
 export default function MainLayout() {
   const navigate = useNavigate();
@@ -102,55 +103,29 @@ export default function MainLayout() {
           departureTime: formattedDate,
           passengers: values.passengers,
         });
-        setFlights(res.data); // flightsni kontekstga yuklash
+        setFlights(res.data);
         console.log("res", res);
-        // navigate("/flightsPage");
         navigate(`/flightsPage?passengers=${values.passengers}`);
       } catch (error) {
         console.log("error", error);
       }
     },
-    [navigate, setFlights] // Ulanadigan dependencies
+    [navigate, setFlights]
   );
 
-  const { data: getAvailableAirplanes } = useQuery(
-    ["getAvailableAirplanes"],
-    async () => {
-      const res = await api.get("/flight/get-available-airplanes");
-      return res.data;
+  const handleCapinet = async () => {
+    const userId = localStorage.getItem("userId");
+    try {
+      const res = await api.get(`/user/find-by-id/${userId}`);
+      navigate("/dashboardPage");
+    } catch (error) {
+      handleApiError(error, navigate);
     }
-  );
-
-  console.log("getAvailableAirplanes", getAvailableAirplanes);
+  };
 
   return (
     <>
       <Layout className="min-h-[590px]">
-        {/* <Header className="bg-transparent px-4 flex items-center justify-between">
-          <Select
-            style={{ backdropFilter: "blur(10px)", background: "transparent" }}
-            className=" !bg-opacity-80 !backdrop-blur-md"
-            // style={{background: }}
-            defaultValue={"ENG"}
-            options={[
-              { label: "UZB", value: "UZB" },
-              { label: "RU", value: "RU" },
-              { label: "ENG", value: "ENG" },
-            ]}
-          />
-          <div className="flex gap-2">
-            <Button onClick={() => navigate("./admin/users")}>Admin</Button>
-            <Button onClick={() => navigate("./superAdmin/admins")}>
-              Super Admin
-            </Button>
-          </div>
-
-          <div>
-            <Button onClick={() => navigate("./dashboardPage")}>
-              My Account
-            </Button>
-          </div>
-        </Header> */}
         <Header className="bg-[#479fe1] shadow-md h-[100%]">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
@@ -162,10 +137,10 @@ export default function MainLayout() {
               </Link>
               <nav className="hidden md:flex space-x-8">
                 <Link
-                  to="/flights"
+                  to="/question"
                   className="text-white flex font-semibold text-lg justify-center items-center  h-[32px] hover:text-primary"
                 >
-                  Flights
+                  Questions and answers
                 </Link>
                 <Link
                   to="/about"
@@ -192,7 +167,7 @@ export default function MainLayout() {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <Button
-                  onClick={() => navigate("./dashboardPage")}
+                  onClick={handleCapinet}
                   variant="outlined"
                   className="text-white  font-semibold text-lg bg-transparent border-white border-2 border-primary hover:bg-primary hover:text-white"
                 >
@@ -224,7 +199,7 @@ export default function MainLayout() {
                   to="/flights"
                   className="block py-2 text-gray-600 hover:text-primary"
                 >
-                  Flights
+                  Questions and answers
                 </Link>
                 <Link
                   to="/about"
@@ -286,29 +261,6 @@ export default function MainLayout() {
           <Card bordered={false} className="lg:!w-[1168px]">
             <Form form={form} onFinish={onFinish} layout="vertical">
               <Row gutter={[16, 16]}>
-                {/* <Col xs={24} sm={24} md={24} lg={24}>
-                  <Row gutter={16}>
-                    <Col>
-                      <Button
-                        type={selectedWay === "oneWay" ? "primary" : "default"}
-                        onClick={() => setSelectedWay("oneWay")}
-                      >
-                        One way
-                      </Button>
-                    </Col>
-                    <Col>
-                      <Button
-                        type={
-                          selectedWay === "roundTrip" ? "primary" : "default"
-                        }
-                        onClick={() => setSelectedWay("roundTrip")}
-                      >
-                        Round-trip
-                      </Button>
-                    </Col>
-                  </Row>
-                </Col> */}
-
                 <Col xs={24} sm={12} md={8} lg={6}>
                   <Form.Item
                     name="departureAirport"

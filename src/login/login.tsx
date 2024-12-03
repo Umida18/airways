@@ -10,6 +10,7 @@ import {
   Row,
   Typography,
   message,
+  notification,
 } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import "./login.scss";
@@ -21,6 +22,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 // import { useAuth } from "../hooks/use-auth";
 import { login, register } from "../api/auth";
+import { handleApiError } from "@/utils/apiErrorHandler";
 
 const { Header, Content } = Layout;
 
@@ -76,15 +78,14 @@ const LoginPage = () => {
 
       localStorage.setItem("token", token);
       // localStorage.setItem("userId", userId);
-
+      notification.success({
+        message: "Login successfully!",
+      });
       message.success("Login successfully!");
 
       navigate("/");
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || error.message || "Login failed!";
-      console.error("Login failed:", error);
-      message.error(errorMessage);
+      handleApiError(error, navigate);
     }
   };
 
@@ -111,25 +112,7 @@ const LoginPage = () => {
       message.success("Registration successful!");
       navigate("/login");
     } catch (error: any) {
-      console.error("Detailed registration error:", error);
-      let errorMessage = "Registration failed!";
-      if (error.response) {
-        if (error.response.status === 401) {
-          errorMessage =
-            "Authentication failed. Please check your credentials or contact support.";
-        } else {
-          errorMessage =
-            error.response.data?.errorMessage ||
-            error.response.data?.message ||
-            errorMessage;
-        }
-      } else if (error.request) {
-        errorMessage =
-          "No response received from the server. Please try again later.";
-      } else {
-        errorMessage = error.message || errorMessage;
-      }
-      message.error(errorMessage);
+      handleApiError(error, navigate);
     }
   };
 

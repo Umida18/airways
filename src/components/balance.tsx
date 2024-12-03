@@ -28,34 +28,31 @@ export function Balance() {
       }
     };
     fetchUser();
-  }, []);
+  }, [user]);
 
   const handleSendMoney = async (values: IUser) => {
     const userId = localStorage.getItem("userId");
     if (!user || !userId) return;
 
-    const newBalance = user.balance + values.balance;
+    const newBalance = values.balance;
 
     try {
       console.log("Request Payload:", { ...user, balance: newBalance });
 
-      const response = await api.put(`/user/update/${userId}`, {
-        ...user,
-        balance: newBalance,
-      });
+      const response = await api.post(
+        `/user/add-balance?userId=${userId}&balance=${newBalance}`
+      );
 
       console.log("API Response:", response.data);
 
-      if (response.data && response.data.balance !== undefined) {
-        setUser(response.data);
-        form.resetFields();
-        notification.success({
-          message: "Success",
-          description: `Successfully sent $${values.balance} to ${user.username}.`,
-        });
-      } else {
-        throw new Error("Unexpected API response structure");
-      }
+      // if (response.data) {
+      setUser(response.data);
+      form.resetFields();
+      notification.success({
+        message: "Success",
+        description: `Successfully sent $${values.balance} to ${user.username}.`,
+      });
+      // }
     } catch (error) {
       console.error("Error sending money:", error);
       notification.error({
@@ -65,54 +62,14 @@ export function Balance() {
     }
   };
 
-  // const handleApiError = (error: any) => {
-  //   if (error.response) {
-  //     switch (error.response.status) {
-  //       case 401:
-  //         notification.error({
-  //           message: "Authentication Error",
-  //           description:
-  //             "Your session has expired or the token is invalid. Please log in again.",
-  //         });
-  //         // Clear the invalid token
-  //         localStorage.removeItem("token");
-  //         // Redirect to login page
-  //         navigate("/login");
-  //         break;
-  //       case 403:
-  //         notification.error({
-  //           message: "Authorization Error",
-  //           description: "You don't have permission to perform this action.",
-  //         });
-  //         break;
-  //       default:
-  //         notification.error({
-  //           message: "Error",
-  //           description: "An unexpected error occurred. Please try again.",
-  //         });
-  //     }
-  //   } else if (error.request) {
-  //     notification.error({
-  //       message: "Network Error",
-  //       description:
-  //         "Unable to connect to the server. Please check your internet connection.",
-  //     });
-  //   } else {
-  //     notification.error({
-  //       message: "Error",
-  //       description: "An unexpected error occurred. Please try again.",
-  //     });
-  //   }
-  // };
-
   return (
     <Card className="border-sky-100">
       <CardHeader className="border-b border-sky-100">
         <CardTitle className="text-sky-900">Balance</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-bold mb-6">
-          Current Balance: ${user?.balance}
+        <p className="text-2xl font-bold mb-6 mt-5">
+          Current Balance: {user?.balance} SUM
         </p>
         <Form form={form} onFinish={handleSendMoney} layout="vertical">
           <Form.Item
@@ -127,7 +84,7 @@ export function Balance() {
               },
             ]}
           >
-            <InputNumber placeholder="Enter amount" />
+            <InputNumber placeholder="Enter amount" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" className="w-full">

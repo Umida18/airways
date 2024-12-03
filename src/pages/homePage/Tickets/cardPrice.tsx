@@ -62,7 +62,10 @@ const CardPrice = () => {
         <IoIosInformationCircleOutline style={{ color: "#9ca7b1" }} /> Important
         information
       </Typography>
-      <Row gutter={[20, 20]}>
+      <Row
+        gutter={[20, 20]}
+        style={{ display: "flex", justifyContent: "center" }}
+      >
         {uniqueFlights.map((flight) => (
           <Col xl={6}>
             <div

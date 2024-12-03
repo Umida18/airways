@@ -3,7 +3,15 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSearchParams } from "react-router-dom";
-import { Col, DatePicker, Form, Row, Select, Typography } from "antd";
+import {
+  Col,
+  DatePicker,
+  Form,
+  Row,
+  Select,
+  Typography,
+  notification,
+} from "antd";
 import api from "@/api/api";
 import { useFlights } from "@/context/FlightsContext";
 import dayjs from "dayjs";
@@ -93,11 +101,16 @@ export function BuyTicket() {
       console.log("Booking created:", response);
       // alert("Buyurtma muvaffaqiyatli yaratildi!");
       // Navigate to success page or clear form
+      notification.success({
+        message: "Success",
+        description: `Booking created successfully!`,
+      });
     } catch (error) {
       console.error("Error submitting form:", error);
-      // alert(
-      //   "Buyurtma yaratishda xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring."
-      // );
+      notification.success({
+        message: "Error",
+        description: `Error submitting form. Please try again.`,
+      });
     }
   };
 

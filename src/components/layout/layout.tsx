@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Sidebar } from "../sidebar";
 import { ProfileSettings } from "../profileSettings";
-import { Bell } from "lucide-react";
+import { Bell, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "antd";
 import api from "../api";
@@ -11,6 +11,7 @@ import { OrdersHistory } from "../ordersHistory";
 import { Balance } from "../balance";
 import { Tickets } from "../tickets";
 import { IUser } from "@/type/type";
+import { Link } from "react-router-dom";
 // import Image from 'next/image'
 
 export default function DashboardPage() {
@@ -22,8 +23,6 @@ export default function DashboardPage() {
 
     const fetchUser = async () => {
       const res = await api.get(`/user/find-by-id/${userId}`);
-
-      console.log("userdata", res.data);
       setUser(res.data);
     };
     fetchUser();
@@ -31,25 +30,27 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-md border-b border-sky-100">
+      <header className="bg-[#479fe1] shadow-md">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div>
             <Typography
               style={{
-                color: "#5c6572",
+                color: "#f3f3f3",
                 fontSize: "20px",
                 fontWeight: 600,
               }}
             >
-              Welcome,<span className="text-black"> {user?.username}</span>
+              Welcome,<span className="text-white"> {user?.username}</span>
             </Typography>
           </div>
-          <div className="flex items-center gap-2">
-            <img
-              src="https://percab.uzairways.com/assets/blue_logo-f2fb00b4.svg"
-              alt=""
-            />
-          </div>
+          <Link to={"/"}>
+            <div className="flex items-center gap-2">
+              <Plane className="h-8 w-8 text-white" />
+              <span className="text-2xl font-bold text-white">
+                Uzbekistan Airways
+              </span>
+            </div>
+          </Link>
         </div>
       </header>
       <div className="max-w-7xl mx-auto px-4 py-8 flex gap-8">
@@ -59,7 +60,6 @@ export default function DashboardPage() {
         />
         <main className="flex-1">
           {activeSection === "profile" && <ProfileSettings />}
-          {/* {activeSection === "orders" && <OrdersHistory />} */}
           {activeSection === "balance" && <Balance />}
           {activeSection === "tickets" && <Tickets />}
         </main>

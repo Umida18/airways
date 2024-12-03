@@ -34,7 +34,7 @@ const Tickets: React.FC<TicketsProps> = ({ data }) => {
 
   return (
     <div className="bg-white py-8 ">
-      <div className="max-w-7xl mx-auto px-14">
+      {/* <div className=" mx-auto px-14">
         <Typography.Title style={{ fontSize: "24px", fontWeight: 700 }}>
           Offers & Ticket Prices For Cheap Flights
         </Typography.Title>
@@ -82,8 +82,8 @@ const Tickets: React.FC<TicketsProps> = ({ data }) => {
             </div>
           )}
         </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-14 my-10">
+      </div> */}
+      <div className=" mx-auto px-16 my-10">
         <Row gutter={[16, 16]}>
           {filteredCities.map((item, index) => (
             <Col key={index} xs={24} sm={12} md={getColSpan(index)}>

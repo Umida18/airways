@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -11,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plane, Calendar, Clock, CheckCircle2 } from "lucide-react";
+import api from "./api";
+import { useRoutes } from "react-router-dom";
 
 const upcomingFlights = [
   {
@@ -68,6 +70,22 @@ const pastFlights = [
 
 export function Tickets() {
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [tickets, setTickets] = useState([]);
+
+  useEffect(() => {
+    const fetchTicket = async () => {
+      const userId = localStorage.getItem("userId");
+      console.log("userId", userId);
+
+      const res = await api.get(
+        `/booking/get-tickets-flight-by-userId/${userId}`
+      );
+      console.log("resTicket", res);
+
+      setTickets(res.data);
+    };
+    fetchTicket();
+  }, []);
 
   const renderFlightTable = (
     flights: typeof upcomingFlights,

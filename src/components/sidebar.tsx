@@ -41,11 +41,10 @@ export function Sidebar({ activeSection, setActiveSection }: SidebarProps) {
     const fetchUser = async () => {
       const res = await api.get(`/user/find-by-id/${userId}`);
 
-      console.log("userdata", res.data);
       setUser(res.data);
     };
     fetchUser();
-  }, []);
+  }, [user]);
 
   const logout = () => {
     localStorage.removeItem("userId");
@@ -69,7 +68,7 @@ export function Sidebar({ activeSection, setActiveSection }: SidebarProps) {
         <div className="flex items-center gap-2">
           <Typography style={{}}>Balance:</Typography>
 
-          <span className="text-xl font-bold">${user?.balance}</span>
+          <span className="text-xl font-bold">{user?.balance} SUM</span>
         </div>
       </div>
       <nav className="flex flex-col justify-between h-[40vh]">
