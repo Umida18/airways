@@ -7,9 +7,11 @@ export const login = async (data: { username: string; password: string }) => {
     console.log("Login response:", response);
 
     const token = response.data?.token; // Tokenni qaytarish yo'lini tekshiring
+    const userId = response.data?.userId; // Tokenni qaytarish yo'lini tekshiring
     if (token) {
       localStorage.setItem("token", token);
-      console.log("Token saved to localStorage:", token);
+      localStorage.setItem("userId", userId);
+      console.log("Token saved to localStorage:", token, userId);
       return response.data;
     } else {
       throw new Error("Token not found in login response.");

@@ -12,11 +12,11 @@ export interface User {
   password: string;
   email: string;
   role: string;
-  birthday: string;
+  birthDate: string;
   phoneNumber: string;
   balance: number;
   address: string;
-  passportSeriies: string;
+  passportSeries: string;
 }
 
 export type Airport =
@@ -55,11 +55,12 @@ export const classtype = ["BUSINESS", "FIRST", "ECONOMY"];
 
 export interface TicketType {
   id: string;
-  flight: string;
+  // flight: string;
   price: number;
   seatNumber: string;
   classType: ClassType;
   bookingDate: string;
+  bron: boolean;
   // nearWindow: boolean;
   // ticketStatus: string;
   // departureTime: string;

@@ -1,25 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { Table, Button, Space, Drawer, message } from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  UserAddOutlined,
-} from "@ant-design/icons";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Table, Button, Space, Drawer, message, Select } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { useForm } from "antd/es/form/Form";
 
 import { AutoForm, FieldType } from "../../components/auto-form";
 import { classtype, TicketType } from "../../types";
 import axios from "axios";
 import api from "../../components/api";
-
-// type PaymentType = "Uzcard" | "Humo" | "Visa" | "MasterCard";
-// const Payments = ["Uzcard", "Humo", "Visa", "MasterCard"];
-// const paymentOptions = Payments.map((item: string) => {
-//   return {
-//     label: item,
-//     value: item,
-//   };
-// });
+const { Option } = Select;
 
 export function Tickets() {
   const [form] = useForm();
@@ -52,18 +40,6 @@ export function Tickets() {
     }
   };
 
-  const handleAdd = () => {
-    setEditingTicket(null);
-    form.resetFields();
-    setIsModalVisible(true);
-  };
-
-  const handleEdit = (tickets: TicketType) => {
-    setEditingTicket(tickets);
-    form.setFieldsValue(tickets);
-    setIsModalVisible(true);
-  };
-
   const handleDelete = async (id: string) => {
     console.log(id);
     try {
@@ -78,11 +54,65 @@ export function Tickets() {
     }
   };
 
+  const updateClassType = useCallback(
+    async (id: string, data: TicketType, newClassType: string) => {
+      try {
+        await api.put(`/ticket/update${id}`, {
+          ...data,
+          classType: newClassType,
+        });
+        fetchTickets();
+        message.success("tickets updated successfully");
+      } catch (error) {
+        console.error("error", error);
+        message.error("error");
+      }
+    },
+    []
+  );
+
   const columns = [
     {
       title: "classType",
       dataIndex: "classType",
       key: "classType",
+      render: (ClassType: string, record: TicketType) => {
+        console.log(ClassType);
+        // record.price == 200
+        //   ? (ClassType = "ECONOMY")
+        //   : record.price == 500
+        //   ? (ClassType = "FIRST")
+        //   : (ClassType = "BUSINESS");
+        const handleChange = (value: string) => {
+          updateClassType(record.id, record, value);
+        };
+
+        return (
+          <Select value={ClassType} onChange={handleChange} className="w-full">
+            <Option
+              key="ECONOMY"
+              value="ECONOMY"
+              className="text-green-400 font-bold"
+            >
+              ECONOMY
+            </Option>
+            <Option
+              key="FIRST"
+              value="FIRST"
+              className="text-yellow-500 font-bold"
+            >
+              FIRST
+            </Option>{" "}
+            <Option
+              key="BUSINESS"
+              value="BUSINESS"
+              className="text-yellow-500 font-bold"
+            >
+              BUSINESS
+            </Option>
+          </Select>
+        );
+      },
     },
     {
       title: "bookingDate",
@@ -182,16 +212,13 @@ export function Tickets() {
 
         return (
           <span className="space-x-2">
-            <Button
-              icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
-              className="text-blue-500 hover:text-blue-700"
-            />
-            <Button
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record.id)}
-              className="text-red-500 hover:text-red-700"
-            />
+            {!record.bron && (
+              <Button
+                icon={<DeleteOutlined />}
+                onClick={() => handleDelete(record.id)}
+                className="text-red-500 hover:text-red-700"
+              />
+            )}
           </span>
         );
       },
@@ -308,16 +335,6 @@ export function Tickets() {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex justify-end items-center mb-4">
-          <Button
-            type="primary"
-            icon={<UserAddOutlined />}
-            className="bg-blue-600 hover:bg-blue-700"
-            onClick={handleAdd}
-          >
-            Add New Ticket
-          </Button>
-        </div>
         <Table columns={columns} dataSource={tickets} scroll={{ x: 1000 }} />
       </div>
 
