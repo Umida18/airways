@@ -50,7 +50,7 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     try {
       const response = await api.get(`/user/find-by-id/${userId}`);
       setMe(response.data);
-      setModalOpen(true);
+      // setModalOpen(true);
     } catch (error) {
       message.error("Failed to fetch admins");
     }
@@ -60,9 +60,9 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   // Ma'lumotlarni PUT qilish
   const updateMe = async (id: string, updatedUser: User) => {
     try {
-      await api.put(`/user/update/${id}`, updatedUser); // "me" endpoint uchun PUT
-      setMe(updatedUser); // Mahalliy state'da yangilash
-      setEditMode(false); // Tahrirlash rejimini yopish
+      await api.put(`/user/update/${id}`, updatedUser);
+      setMe(updatedUser);
+      setEditMode(false);
       Modal.success({ content: "User data updated successfully!" });
     } catch (error) {
       console.error("Error updating user data:", error);
@@ -96,15 +96,15 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <LayoutAntd className="bg-white">
       <Sider
-        className=" m-5  rounded-start-xl rounded-end-3xl pt-10 w-[250px] "
+        className="   w-[280px] p-5 "
         collapsed={collapsed}
         style={{
           width: 500,
           background: "rgb(5,62,139)",
-          borderTopLeftRadius: "10px",
-          borderBottomLeftRadius: "10px",
-          borderTopRightRadius: "150px",
-          borderBottomRightRadius: "10px",
+          // borderTopLeftRadius: "10px",
+          // borderBottomLeftRadius: "10px",
+          // borderTopRightRadius: "150px",
+          // borderBottomRightRadius: "10px",
         }}
       >
         <div className="demo-logo-vertical" />
@@ -131,18 +131,18 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           items={[
             {
               key: "/admin/users",
-              icon: <UserOutlined style={{ color: "white" }} />,
+              icon: <UserOutlined style={{ color: "black" }} />,
               label: (
-                <Link to="users" style={{ color: "white" }}>
+                <Link to="users" style={{ color: "black" }}>
                   Users
                 </Link>
               ),
             },
             {
               key: "/admin/tickets",
-              icon: <UserOutlined style={{ color: "white" }} />,
+              icon: <UserOutlined style={{ color: "black" }} />,
               label: (
-                <Link to="tickets" style={{ color: "white" }}>
+                <Link to="tickets" style={{ color: "black" }}>
                   Tickets
                 </Link>
               ),
@@ -150,18 +150,18 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
             {
               key: "/admin/flights",
-              icon: <UploadOutlined style={{ color: "white" }} />,
+              icon: <UploadOutlined style={{ color: "black" }} />,
               label: (
-                <Link to="flights" style={{ color: "white" }}>
+                <Link to="flights" style={{ color: "black" }}>
                   Flights
                 </Link>
               ),
             },
             {
               key: "/admin/airplanes",
-              icon: <UploadOutlined style={{ color: "white" }} />,
+              icon: <UploadOutlined style={{ color: "black" }} />,
               label: (
-                <Link to="airplanes" style={{ color: "white" }}>
+                <Link to="airplanes" style={{ color: "black" }}>
                   Airplanes
                 </Link>
               ),
@@ -181,7 +181,7 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
           <div
             className="flex flex-row  items-center gap-3 cursor-pointer"
-            onClick={FetchMe}
+            onClick={() => setModalOpen(true)}
           >
             <div className="flex flex-col ">
               <Title level={5}>
@@ -338,3 +338,79 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     </LayoutAntd>
   );
 };
+
+// import React, { useState } from 'react';
+// import {
+//   MenuFoldOutlined,
+//   MenuUnfoldOutlined,
+//   UploadOutlined,
+//   UserOutlined,
+//   VideoCameraOutlined,
+// } from '@ant-design/icons';
+// import { Button, Layout, Menu, theme } from 'antd';
+
+// const { Header, Sider, Content } = Layout;
+
+// const App: React.FC = () => {
+//   const [collapsed, setCollapsed] = useState(false);
+//   const {
+//     token: { colorBgContainer, borderRadiusLG },
+//   } = theme.useToken();
+
+//   return (
+//     <Layout>
+//       <Sider trigger={null} collapsible collapsed={collapsed}>
+//         <div className="demo-logo-vertical" />
+//         <Menu
+//           theme="dark"
+//           mode="inline"
+//           defaultSelectedKeys={['1']}
+//           items={[
+//             {
+//               key: '1',
+//               icon: <UserOutlined />,
+//               label: 'nav 1',
+//             },
+//             {
+//               key: '2',
+//               icon: <VideoCameraOutlined />,
+//               label: 'nav 2',
+//             },
+//             {
+//               key: '3',
+//               icon: <UploadOutlined />,
+//               label: 'nav 3',
+//             },
+//           ]}
+//         />
+//       </Sider>
+//       <Layout>
+//         <Header style={{ padding: 0, background: colorBgContainer }}>
+//           <Button
+//             type="text"
+//             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+//             onClick={() => setCollapsed(!collapsed)}
+//             style={{
+//               fontSize: '16px',
+//               width: 64,
+//               height: 64,
+//             }}
+//           />
+//         </Header>
+//         <Content
+//           style={{
+//             margin: '24px 16px',
+//             padding: 24,
+//             minHeight: 280,
+//             background: colorBgContainer,
+//             borderRadius: borderRadiusLG,
+//           }}
+//         >
+//           Content
+//         </Content>
+//       </Layout>
+//     </Layout>
+//   );
+// };
+
+// export default App;

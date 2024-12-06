@@ -1,7 +1,5 @@
-import { Button, Card, Col, Row, Select, Typography } from "antd";
+import { Button, Card, Col, Row } from "antd";
 import { useState } from "react";
-import { HiOutlineX } from "react-icons/hi";
-import { IoCheckmarkOutline, IoSearch } from "react-icons/io5";
 
 interface ITickets {
   city: string;
@@ -25,64 +23,19 @@ const Tickets: React.FC<TicketsProps> = ({ data }) => {
     setIsHovered(null);
   };
 
-  const getColSpan = (index: number) => {
-    return index % 6 === 0 ? 12 : 6 && (index + 1) % 6 === 0 ? 12 : 6;
-  };
+  // const getColSpan = (index: number) => {
+  //   return index % 6 === 0 ? 12 : 6 && (index + 1) % 6 === 0 ? 12 : 6;
+  // };
+
+  const getColSpan = (index: number) =>
+    index % 6 === 0 ? 12 : (index + 1) % 6 === 0 ? 12 : 6;
+
   const filteredCities = selectedCity
     ? data.filter((item) => item.city === selectedCity)
     : data;
 
   return (
     <div className="bg-white py-8 ">
-      {/* <div className=" mx-auto px-14">
-        <Typography.Title style={{ fontSize: "24px", fontWeight: 700 }}>
-          Offers & Ticket Prices For Cheap Flights
-        </Typography.Title>
-        <div className="flex gap-3 items-center ">
-          <Typography.Text
-            style={{ fontSize: "16px", fontWeight: 500, marginBlock: "20px" }}
-          >
-            Departing from
-          </Typography.Text>
-          <Select
-            onChange={(e) => setSelectedCity(e)}
-            showSearch
-            defaultValue={null}
-            style={{ width: "100%", maxWidth: 400, height: "44px" }}
-            options={data.map((item) => ({
-              value: item.city,
-              label: item.city,
-              code: item.city.slice(0, 3),
-            }))}
-            value={selectedCity || undefined}
-            suffixIcon={<IoSearch style={{ fontSize: "22px" }} />}
-            optionRender={(option) => (
-              <div className="flex items-center justify-between py-1 px-2">
-                <div className="flex items-center gap-2">
-                  {option.value === selectedCity && (
-                    <IoCheckmarkOutline className="text-green-500" />
-                  )}
-                  <span>{option.data.label}</span>
-                </div>
-                <span className="text-gray-500 text-sm">
-                  {option.data.code}
-                </span>
-              </div>
-            )}
-          />
-          {selectedCity && (
-            <div
-              onClick={(e) => {
-                e.preventDefault();
-                setSelectedCity(null);
-              }}
-              style={{ cursor: "pointer" }}
-            >
-              <HiOutlineX />
-            </div>
-          )}
-        </div>
-      </div> */}
       <div className=" mx-auto px-16 my-10">
         <Row gutter={[16, 16]}>
           {filteredCities.map((item, index) => (

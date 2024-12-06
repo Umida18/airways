@@ -1,20 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Table, Button, Space, Drawer, message, Select } from "antd";
+import { useCallback, useEffect, useState } from "react";
+import { Table, Button, message } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { useForm } from "antd/es/form/Form";
 
-import { AutoForm, FieldType } from "../../components/auto-form";
-import { classtype, TicketType } from "../../types";
-import axios from "axios";
 import api from "../../components/api";
-const { Option } = Select;
+import { TicketType } from "@/types";
 
 export function Tickets() {
-  const [form] = useForm();
-  const [editingTicket, setEditingTicket] = useState<TicketType | null>(null);
   // const [flight, setFlight] = useState<FlightType[]>([]);
   const [tickets, setTickets] = useState<TicketType[]>([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     // fetchFligths();
@@ -78,46 +71,51 @@ export function Tickets() {
       key: "classType",
       render: (ClassType: string, record: TicketType) => {
         console.log(ClassType);
-        // record.price == 200
-        //   ? (ClassType = "ECONOMY")
-        //   : record.price == 500
-        //   ? (ClassType = "FIRST")
-        //   : (ClassType = "BUSINESS");
-        const handleChange = (value: string) => {
-          updateClassType(record.id, record, value);
-        };
+
+        ClassType =
+          record.price == 200
+            ? "ECONOMY"
+            : record.price == 500
+            ? "FIRST"
+            : "BUSINESS";
 
         return (
-          <Select value={ClassType} onChange={handleChange} className="w-full">
-            <Option
-              key="ECONOMY"
-              value="ECONOMY"
-              className="text-green-400 font-bold"
-            >
-              ECONOMY
-            </Option>
-            <Option
-              key="FIRST"
-              value="FIRST"
-              className="text-yellow-500 font-bold"
-            >
-              FIRST
-            </Option>{" "}
-            <Option
-              key="BUSINESS"
-              value="BUSINESS"
-              className="text-yellow-500 font-bold"
-            >
-              BUSINESS
-            </Option>
-          </Select>
+          <p>{ClassType}</p>
+          // <Select value={ClassType} onChange={handleChange} className="w-full">
+          //   <Option
+          //     key="ECONOMY"
+          //     value="ECONOMY"
+          //     className="text-green-400 font-bold"
+          //   >
+          //     ECONOMY
+          //   </Option>
+          //   <Option
+          //     key="FIRST"
+          //     value="FIRST"
+          //     className="text-yellow-500 font-bold"
+          //   >
+          //     FIRST
+          //   </Option>{" "}
+          //   <Option
+          //     key="BUSINESS"
+          //     value="BUSINESS"
+          //     className="text-yellow-500 font-bold"
+          //   >
+          //     BUSINESS
+          //   </Option>
+          // </Select>
         );
       },
     },
     {
-      title: "bookingDate",
-      dataIndex: "bookingDate",
-      key: "bookingDate",
+      title: "departureTime",
+      dataIndex: "departureTime",
+      key: "departureTime",
+    },
+    {
+      title: "arrivalTime",
+      dataIndex: "arrivalTime",
+      key: "arrivalTime",
     },
     {
       title: "price",
@@ -126,11 +124,6 @@ export function Tickets() {
       render: (value: any) => {
         return value + " $";
       },
-    },
-    {
-      title: "seatNumber",
-      dataIndex: "seatNumber",
-      key: "seatNumber",
     },
 
     {
@@ -145,64 +138,6 @@ export function Tickets() {
         );
       },
     },
-    {
-      title: "active",
-      dataIndex: "active",
-      key: "active",
-      render: (value: any) => {
-        return value ? (
-          <p className="text-green-400 font-bold">Active</p>
-        ) : (
-          <p className="text-red-500 font-bold">Inactive</p>
-        );
-      },
-    },
-    // {
-    //   title: "Actions",
-    //   dataIndex: "id",
-    //   key: "id",
-    //   render: (id: string) => (
-    //     <Space>
-    //       <Button
-    //         type="primary"
-    //         icon={<EditOutlined />}
-    //         onClick={() => handleEdit(tickets)}
-    //       />
-    //       <Button
-    //         type="primary"
-    //         danger
-    //         icon={<DeleteOutlined />}
-    //         onClick={() => handleDelete(id)}
-    //       />
-    //     </Space>
-    //   ),
-    // },
-
-    // {
-    //   title: "departureTime",
-    //   dataIndex: "departureTime",
-    //   key: "departureTime",
-    // },
-    // {
-    //   title: "arrivalTime",
-    //   dataIndex: "arrivalTime",
-    //   key: "arrivalTime",
-    // },
-    // {
-    //   title: "departureAirport",
-    //   dataIndex: "departureAirport",
-    //   key: "departureAirport",
-    // },
-    // {
-    //   title: "arrivalAirport",
-    //   dataIndex: "arrivalAirport",
-    //   key: "arrivalAirport",
-    // },
-    // {
-    //   title: "flightStatus",
-    //   dataIndex: "flightStatus",
-    //   key: "flightStatus",
-    // },
 
     {
       title: "Action",
@@ -215,7 +150,7 @@ export function Tickets() {
             {!record.bron && (
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => handleDelete(record.id)}
+                onClick={() => handleDelete(record.ticketId)}
                 className="text-red-500 hover:text-red-700"
               />
             )}
@@ -230,121 +165,121 @@ export function Tickets() {
   //     value: item,
   //   };
   // });
-  const classOptions = classtype.map((item: string) => {
-    return {
-      label: item,
-      value: item,
-    };
-  });
+  // const classOptions = classtype.map((item: string) => {
+  //   return {
+  //     label: item,
+  //     value: item,
+  //   };
+  // });
 
-  const fields = useMemo(
-    () =>
-      [
-        {
-          label: "classType",
-          name: "classType",
-          rules: [{ required: true, message: "Пустое поле!" }],
-          type: "select",
-          options: classOptions,
-        },
-        {
-          label: "bookingDate",
-          name: "bookingDate",
-          rules: [{ required: true, message: "Пустое поле!" }],
-        },
-        // {
-        //   label: "price",
-        //   name: "price",
-        //   span: 8,
-        //   type: "number",
-        //   rules: [{ required: true, message: "Пустое поле!" }],
-        // },
-        {
-          label: "seatNumber",
-          span: 8,
-          name: "seatNumber",
-          rules: [{ required: true, message: "Пустое поле!" }],
-        },
+  // const fields = useMemo(
+  //   () =>
+  //     [
+  //       {
+  //         label: "classType",
+  //         name: "classType",
+  //         rules: [{ required: true, message: "Пустое поле!" }],
+  //         type: "select",
+  //         options: classOptions,
+  //       },
+  //       {
+  //         label: "bookingDate",
+  //         name: "bookingDate",
+  //         rules: [{ required: true, message: "Пустое поле!" }],
+  //       },
+  //       // {
+  //       //   label: "price",
+  //       //   name: "price",
+  //       //   span: 8,
+  //       //   type: "number",
+  //       //   rules: [{ required: true, message: "Пустое поле!" }],
+  //       // },
+  //       {
+  //         label: "seatNumber",
+  //         span: 8,
+  //         name: "seatNumber",
+  //         rules: [{ required: true, message: "Пустое поле!" }],
+  //       },
 
-        // {
-        //   label: "flightNumber",
-        //   name: "flightNumber",
-        //   rules: [{ required: true, message: "Пустое поле!" }],
-        // },
+  //       // {
+  //       //   label: "flightNumber",
+  //       //   name: "flightNumber",
+  //       //   rules: [{ required: true, message: "Пустое поле!" }],
+  //       // },
 
-        // {
-        //   label: "ticketStatus",
-        //   name: "ticketStatus",
-        //   rules: [{ required: true, message: "Пустое поле!" }],
-        // },
-        // {
-        //   label: "departureTime",
-        //   name: "departureTime",
-        //   rules: [{ required: true, message: "Пустое поле!" }],
-        // },
-        // {
-        //   label: "arrivalTime",
-        //   name: "arrivalTime",
-        //   rules: [{ required: true, message: "Пустое поле!" }],
-        // },
-        // {
-        //   label: "departureAirport",
-        //   name: "departureAirport",
-        //   span: 24,
-        //   rules: [{ required: true, message: "Пустое поле!" }],
-        //   type: "select",
-        //   options: airportOptions,
-        // },
-        // {
-        //   label: "arrivalAirport",
-        //   name: "arrivalAirport",
-        //   span: 24,
-        //   rules: [{ required: true, message: "Пустое поле!" }],
-        //   type: "select",
-        //   options: airportOptions,
-        // },
+  //       // {
+  //       //   label: "ticketStatus",
+  //       //   name: "ticketStatus",
+  //       //   rules: [{ required: true, message: "Пустое поле!" }],
+  //       // },
+  //       // {
+  //       //   label: "departureTime",
+  //       //   name: "departureTime",
+  //       //   rules: [{ required: true, message: "Пустое поле!" }],
+  //       // },
+  //       // {
+  //       //   label: "arrivalTime",
+  //       //   name: "arrivalTime",
+  //       //   rules: [{ required: true, message: "Пустое поле!" }],
+  //       // },
+  //       // {
+  //       //   label: "departureAirport",
+  //       //   name: "departureAirport",
+  //       //   span: 24,
+  //       //   rules: [{ required: true, message: "Пустое поле!" }],
+  //       //   type: "select",
+  //       //   options: airportOptions,
+  //       // },
+  //       // {
+  //       //   label: "arrivalAirport",
+  //       //   name: "arrivalAirport",
+  //       //   span: 24,
+  //       //   rules: [{ required: true, message: "Пустое поле!" }],
+  //       //   type: "select",
+  //       //   options: airportOptions,
+  //       // },
 
-        // {
-        //   label: "flightStatus",
-        //   name: "flightStatus",
-        //   rules: [{ required: true, message: "Пустое поле!" }],
-        // },
-      ] as FieldType[],
-    [tickets]
-  );
+  //       // {
+  //       //   label: "flightStatus",
+  //       //   name: "flightStatus",
+  //       //   rules: [{ required: true, message: "Пустое поле!" }],
+  //       // },
+  //     ] as FieldType[],
+  //   [tickets]
+  // );
 
-  const onFinish = async (values: Record<string, any>) => {
-    console.log("values ", values);
+  // const onFinish = async (values: Record<string, any>) => {
+  //   console.log("values ", values);
 
-    try {
-      if (editingTicket) {
-        await api.put(`/ticket/update${editingTicket.id}`, values);
-        message.success("tickets updated successfully");
-      } else {
-        await axios.post("https://4d71b68cb41c81df.mokky.dev/tickets", {
-          ...values,
-        });
-        message.success("tickets added successfully");
-      }
-      setIsModalVisible(false);
-      fetchTickets();
-    } catch (error) {
-      message.error("Failed to save tickets");
-    }
-  };
+  //   try {
+  //     if (editingTicket) {
+  //       await api.put(`/ticket/update${editingTicket.ticketId}`, values);
+  //       message.success("tickets updated successfully");
+  //     } else {
+  //       await axios.post("https://4d71b68cb41c81df.mokky.dev/tickets", {
+  //         ...values,
+  //       });
+  //       message.success("tickets added successfully");
+  //     }
+  //     setIsModalVisible(false);
+  //     fetchTickets();
+  //   } catch (error) {
+  //     message.error("Failed to save tickets");
+  //   }
+  // };
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white rounded-lg shadow p-6">
         <Table columns={columns} dataSource={tickets} scroll={{ x: 1000 }} />
       </div>
 
-      <Drawer
+      {/* <Drawer
         title="tickets"
         onClose={() => setIsModalVisible(false)}
         open={isModalVisible}
         extra={
           <Space>
-            {/* <Button onClick={handleModalCancel}>Cancel</Button> */}
+            <Button onClick={handleModalCancel}>Cancel</Button>
             <Button onClick={() => form.submit()} type="primary">
               Save
             </Button>
@@ -360,7 +295,7 @@ export function Tickets() {
           onFinish={onFinish}
           loading={false}
         />
-      </Drawer>
+      </Drawer> */}
     </div>
   );
 }

@@ -136,19 +136,7 @@ export function Flights() {
       dataIndex: "arrivalTime",
       key: "arrivalTime",
     },
-    {
-      title: "active",
-      dataIndex: "active",
-      key: "active",
-      render: (active: boolean) => {
-        console.log(active);
-        return active ? (
-          <p className="text-green-400 font-bold">Active</p>
-        ) : (
-          <p className="text-red-500 font-bold">Inactive</p>
-        );
-      },
-    },
+
     {
       title: "passengers",
       dataIndex: "airplane",
@@ -171,18 +159,16 @@ export function Flights() {
       key: "flightStatus",
       render: (status: string, record: FlightType) => {
         const handleChange = (value: string) => {
-          updateFlightStatus(record.id, value);
+          updateFlightStatus(record.flightId, value);
         };
 
+        console.log(record);
         const getColor = (s: string) => {
           switch (s) {
             case "ON_TIME":
               return "text-green-400";
             case "DELAYED":
               return "text-red-500";
-
-            default:
-              return "";
           }
         };
 
@@ -314,6 +300,16 @@ export function Flights() {
   );
   const onFin = async (values: Record<string, any>) => {
     try {
+      const response = await api.get("/flight/get-available-airplanes", {
+        params: {
+          departureTime: values.departureTime,
+          flightAirport: values.departureAirport,
+        },
+      });
+
+      setAirplanesOptions(response.data);
+      console.log("airplanes data", response.data);
+
       setFormValues(values);
       setHavedata(true);
     } catch (error) {
