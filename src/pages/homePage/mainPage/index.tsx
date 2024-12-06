@@ -8,137 +8,31 @@ import {
   Layout,
   Row,
   Select,
-  Tabs,
   Typography,
 } from "antd";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Tickets from "./Cards";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import "./index.css";
-import { useFloor } from "./FloorContext";
+import api from "../../../api/api";
+import dayjs from "dayjs";
+import { useFlights } from "../../../context/FlightsContext";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronDown, Plane, User } from "lucide-react";
 const { Header, Content } = Layout;
-const { RangePicker } = DatePicker;
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { handleApiError } from "@/utils/apiErrorHandler";
 
 export default function MainLayout() {
-  const [selectedWay, setSelectedWay] = useState<"oneWay" | "roundTrip">(
-    "roundTrip"
-  );
   const navigate = useNavigate();
+  const { flights, setFlights } = useFlights();
+  const [isOpen, setIsOpen] = useState(false);
 
-  const [form] = Form.useForm();
-
-  const onFinish = (values: any) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-    } else {
-      console.log("Form values:", values);
-      navigate("/flightsPage");
-    }
-  };
-
-  const navItems = [
-    {
-      title: "Important information",
-      items: [
-        {
-          title: "Before the purchase",
-          items: [
-            "Passengers carrier rules",
-            "Passengers carrier contract",
-            "Fare Rules",
-            "Baggage",
-            "Flying during pregnancy",
-          ],
-        },
-        {
-          title: "Before you fly",
-          items: [
-            "Aviation security",
-            "Information about products",
-            "Travel document requirements",
-            "Special entry requirements",
-          ],
-        },
-        {
-          title: "Airport",
-          items: [
-            "CIP & Lounge",
-            "Flight check-in",
-            "Flight schedule",
-            "Flight status",
-            "Flight tracking",
-          ],
-        },
-        {
-          title: "Aboard",
-          items: [
-            "Business class",
-            "Economy class",
-            "Onboard meals",
-            "Rules of conduct for passengers",
-          ],
-        },
-      ],
-    },
-    {
-      title: "Manage your flight",
-      items: [
-        {
-          title: "Booking",
-          items: [
-            "Book a flight",
-            "Modify booking",
-            "Cancel booking",
-            "Refund request",
-          ],
-        },
-        {
-          title: "Check-in",
-          items: ["Online check-in", "Airport check-in", "Baggage drop-off"],
-        },
-        {
-          title: "Flight status",
-          items: ["Flight tracker", "Flight notifications"],
-        },
-      ],
-    },
-    {
-      title: "Loyalty",
-      items: [
-        {
-          title: "Loyalty program",
-          items: [
-            "Join loyalty program",
-            "Earn miles",
-            "Redeem miles",
-            "Partner airlines",
-          ],
-        },
-        {
-          title: "Member benefits",
-          items: ["Tier status", "Lounge access", "Priority services"],
-        },
-      ],
-    },
-    {
-      title: "About company",
-      items: [
-        {
-          title: "Company info",
-          items: ["History", "Fleet", "Careers", "Press center"],
-        },
-        {
-          title: "Partnerships",
-          items: [
-            "Alliance partners",
-            "Codeshare partners",
-            "Corporate partners",
-          ],
-        },
-      ],
-    },
-  ];
   const data = [
     {
       city: "Samarkand",
@@ -186,30 +80,158 @@ export default function MainLayout() {
     },
   ];
 
+  const [form] = Form.useForm();
+
+  const onFinish = useCallback(
+    async (values: any) => {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (!token && !userId) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const formattedDate = dayjs(values.departureTime.$d).format(
+          "YYYY-MM-DD HH:mm:ss"
+        );
+
+        const res = await api.post("/ticket/get-flight-info", {
+          departureAirport: values.departureAirport,
+          arrivalAirport: values.arrivalAirport,
+          departureTime: formattedDate,
+          passengers: values.passengers,
+        });
+        setFlights(res.data);
+        console.log("res", res);
+        navigate(`/flightsPage?passengers=${values.passengers}`);
+      } catch (error) {
+        console.log("error", error);
+      }
+    },
+    [navigate, setFlights]
+  );
+
+  const handleCapinet = async () => {
+    const userId = localStorage.getItem("userId");
+    try {
+      const res = await api.get(`/user/find-by-id/${userId}`);
+      navigate("/dashboardPage");
+    } catch (error) {
+      handleApiError(error, navigate);
+    }
+  };
+
   return (
     <>
-      <Layout className=" px-8 !mx-auto min-h-[590px] bg-center bg-no-repeat bg-cover bg-[url('https://assets.wego.com/image/upload/f_auto,q_auto:best,w_3840/v1725958728/flights/airlines_hero/HY_4.jpg')]">
-        <Header className="bg-transparent px-4 flex items-center justify-between">
-          <Select
-            style={{ backdropFilter: "blur(10px)", background: "transparent" }}
-            className=" !bg-opacity-80 !backdrop-blur-md"
-            // style={{background: }}
-            defaultValue={"ENG"}
-            options={[
-              { label: "UZB", value: "UZB" },
-              { label: "RU", value: "RU" },
-              { label: "ENG", value: "ENG" },
-            ]}
-          />
-          <div className="flex gap-2">
-            <Button onClick={() => navigate("./admin/users")}>Admin</Button>
-            <Button onClick={() => navigate("./superAdmin/admins")}>
-              Super Admin
-            </Button>
+      <Layout className="min-h-[590px]">
+        <Header className="bg-[#479fe1] shadow-md h-[100%]">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center space-x-2">
+                <Plane className="h-8 w-8 text-white" />
+                <span className="text-2xl font-bold text-white">
+                  Uzbekistan Airways
+                </span>
+              </Link>
+              <nav className="hidden md:flex space-x-8">
+                <Link
+                  to="/question"
+                  className="text-white flex font-semibold text-lg justify-center items-center  h-[32px] hover:text-primary"
+                >
+                  Questions and answers
+                </Link>
+                <Link
+                  to="/about"
+                  className="text-white flex justify-center  font-semibold text-lg items-center h-[32px] hover:text-primary"
+                >
+                  About Us
+                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      // variant="outlined"
+                      className="text-white hover:text-primary   font-semibold text-lg"
+                    >
+                      Admin <ChevronDown className="ml-1 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem>
+                      <Link to="/admin/users">Admin Panel</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link to="/superAdmin/admins">Super Admin</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button
+                  onClick={handleCapinet}
+                  variant="outlined"
+                  className="text-white  font-semibold text-lg bg-transparent border-white border-2 border-primary hover:bg-primary hover:text-white"
+                >
+                  <User className="mr-2 h-4 w-4" /> Cabinet
+                </Button>
+              </nav>
+              <div className="md:hidden">
+                <Button variant="outlined" onClick={() => setIsOpen(!isOpen)}>
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                </Button>
+              </div>
+            </div>
+            {isOpen && (
+              <div className="mt-4 md:hidden">
+                <Link
+                  to="/flights"
+                  className="block py-2 text-gray-600 hover:text-primary"
+                >
+                  Questions and answers
+                </Link>
+                <Link
+                  to="/about"
+                  className="block py-2 text-gray-600 hover:text-primary"
+                >
+                  About Us
+                </Link>
+                <Link
+                  to="/admin"
+                  className="block py-2 text-gray-600 hover:text-primary"
+                >
+                  Admin Panel
+                </Link>
+                <Link
+                  to="/super-admin"
+                  className="block py-2 text-gray-600 hover:text-primary"
+                >
+                  Super Admin
+                </Link>
+                <Link
+                  to="/cabinet"
+                  className="block py-2 text-gray-600 hover:text-primary"
+                >
+                  Cabinet
+                </Link>
+              </div>
+            )}
           </div>
         </Header>
 
         <Content
+          className=" min-h-[590px] bg-center bg-no-repeat bg-cover bg-[url('https://assets.wego.com/image/upload/f_auto,q_auto:best,w_3840/v1725958728/flights/airlines_hero/HY_4.jpg')]"
           style={{
             padding: "10px",
             display: "flex",
@@ -218,6 +240,7 @@ export default function MainLayout() {
             flexDirection: "column",
           }}
         >
+          <div></div>
           <div className="w-[358px] h-[74px] z-10 relative top-3 shadow-md rounded-full flex justify-center gap-4 items-center bg-white p-3">
             <div>
               <img
@@ -238,32 +261,9 @@ export default function MainLayout() {
           <Card bordered={false} className="lg:!w-[1168px]">
             <Form form={form} onFinish={onFinish} layout="vertical">
               <Row gutter={[16, 16]}>
-                <Col xs={24} sm={24} md={24} lg={24}>
-                  <Row gutter={16}>
-                    <Col>
-                      <Button
-                        type={selectedWay === "oneWay" ? "primary" : "default"}
-                        onClick={() => setSelectedWay("oneWay")}
-                      >
-                        One way
-                      </Button>
-                    </Col>
-                    <Col>
-                      <Button
-                        type={
-                          selectedWay === "roundTrip" ? "primary" : "default"
-                        }
-                        onClick={() => setSelectedWay("roundTrip")}
-                      >
-                        Round-trip
-                      </Button>
-                    </Col>
-                  </Row>
-                </Col>
-
                 <Col xs={24} sm={12} md={8} lg={6}>
                   <Form.Item
-                    name="from"
+                    name="departureAirport"
                     label="From"
                     rules={[
                       { required: true, message: "Please select origin" },
@@ -273,16 +273,24 @@ export default function MainLayout() {
                       placeholder="From"
                       style={{ width: "100%", height: "60px", fontWeight: 700 }}
                     >
-                      {" "}
-                      <Select.Option value="moscow">Moscow</Select.Option>
-                      <Select.Option value="dubai">Dubai</Select.Option>
+                      <Select.Option value="TASHKENT">TASHKENT</Select.Option>
+                      <Select.Option value="SAMARKAND">SAMARKAND</Select.Option>
+                      <Select.Option value="BUKHARA">BUKHARA</Select.Option>
+                      <Select.Option value="NAVOIY">NAVOIY</Select.Option>
+                      <Select.Option value="ANDIJON">ANDIJON</Select.Option>
+                      <Select.Option value="FERGANA">FERGANA</Select.Option>
+                      <Select.Option value="KARSHI">KARSHI</Select.Option>
+                      <Select.Option value="NUKUS">NUKUS</Select.Option>
+                      <Select.Option value="TERMIZ">TERMIZ</Select.Option>
+                      <Select.Option value="JIZZAKH">JIZZAKH</Select.Option>
+                      <Select.Option value="KHIVA">KHIVA</Select.Option>
                     </Select>
                   </Form.Item>
                 </Col>
 
                 <Col xs={24} sm={12} md={8} lg={6}>
                   <Form.Item
-                    name="to"
+                    name="arrivalAirport"
                     label="To"
                     rules={[
                       { required: true, message: "Please select destination" },
@@ -292,35 +300,34 @@ export default function MainLayout() {
                       placeholder="To"
                       style={{ width: "100%", height: "60px", fontWeight: 700 }}
                     >
-                      <Select.Option value="moscow">Moscow</Select.Option>
-                      <Select.Option value="dubai">Dubai</Select.Option>
+                      <Select.Option value="TASHKENT">TASHKENT</Select.Option>
+                      <Select.Option value="SAMARKAND">SAMARKAND</Select.Option>
+                      <Select.Option value="BUKHARA">BUKHARA</Select.Option>
+                      <Select.Option value="NAVOIY">NAVOIY</Select.Option>
+                      <Select.Option value="ANDIJON">ANDIJON</Select.Option>
+                      <Select.Option value="FERGANA">FERGANA</Select.Option>
+                      <Select.Option value="KARSHI">KARSHI</Select.Option>
+                      <Select.Option value="NUKUS">NUKUS</Select.Option>
+                      <Select.Option value="TERMIZ">TERMIZ</Select.Option>
+                      <Select.Option value="JIZZAKH">JIZZAKH</Select.Option>
+                      <Select.Option value="KHIVA">KHIVA</Select.Option>
                     </Select>
                   </Form.Item>
                 </Col>
 
                 <Col xs={24} sm={24} md={8} lg={6}>
                   <Form.Item
-                    name="dates"
+                    name="departureTime"
                     label="Date"
                     rules={[{ required: true, message: "Please select date" }]}
                   >
-                    {selectedWay === "oneWay" ? (
-                      <DatePicker
-                        style={{
-                          width: "100%",
-                          height: "60px",
-                          fontWeight: 700,
-                        }}
-                      />
-                    ) : (
-                      <RangePicker
-                        style={{
-                          width: "100%",
-                          height: "60px",
-                          fontWeight: 700,
-                        }}
-                      />
-                    )}
+                    <DatePicker
+                      style={{
+                        width: "100%",
+                        height: "60px",
+                        fontWeight: 700,
+                      }}
+                    />
                   </Form.Item>
                 </Col>
 
@@ -335,24 +342,15 @@ export default function MainLayout() {
                       },
                     ]}
                   >
-                    <Select
-                      placeholder="Passengers"
-                      style={{ width: "100%", height: "60px", fontWeight: 700 }}
-                    >
-                      <Select.Option value="1">
-                        <InputNumber
-                          min={1}
-                          max={10}
-                          // value={floor}
-                          // onChange={(value) => setFloor(value)}
-                          style={{ width: 80 }}
-                          controls={{
-                            upIcon: <span>▲</span>,
-                            downIcon: <span>▼</span>,
-                          }}
-                        />
-                      </Select.Option>
-                    </Select>
+                    <InputNumber
+                      style={{
+                        width: "100%",
+                        height: "60px",
+                        fontSize: "16px",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    />
                   </Form.Item>
                 </Col>
 

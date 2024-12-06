@@ -1,114 +1,208 @@
-// BuyTicket.tsx
-import { useFloor } from "../mainPage/FloorContext";
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useSearchParams } from "react-router-dom";
 import {
-  Card,
-  Form,
-  Input,
-  Select,
-  Radio,
-  DatePicker,
-  Typography,
-  Row,
   Col,
+  DatePicker,
+  Form,
+  Row,
+  Select,
+  Typography,
+  notification,
 } from "antd";
+import api from "@/api/api";
+import { useFlights } from "@/context/FlightsContext";
+import dayjs from "dayjs";
 
 const { Text } = Typography;
 const { Option } = Select;
-const BuyTicket = () => {
-  const [floor] = useFloor();
+
+interface PassengerForm {
+  username: string;
+  firstName: string;
+  birthDate: string;
+  citizenship: string;
+  serialNumber: string;
+  validityPeriod: string;
+}
+
+export function BuyTicket() {
+  const [searchParams] = useSearchParams();
+  const [passengerForms, setPassengerForms] = useState<PassengerForm[]>([]);
+  const passengers = Number(searchParams.get("passengers") || "1");
+  const classTypeParams = searchParams.get("classType");
   const [form] = Form.useForm();
+  const { flights } = useFlights();
+  const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
+
+  useEffect(() => {
+    setPassengerForms(
+      Array(passengers)
+        .fill(null)
+        .map(() => ({
+          username: "",
+          firstName: "",
+          birthDate: "",
+          citizenship: "O'zbekiston",
+          serialNumber: "",
+          validityPeriod: "",
+        }))
+    );
+    selectTickets();
+  }, [searchParams, passengers, flights]);
+
+  const selectTickets = () => {
+    const selected: string[] = [];
+
+    const availableTickets = flights.filter(
+      (ticket) => ticket.classType === classTypeParams && !ticket.bron
+    );
+    const count = Math.min(passengers, availableTickets.length);
+    selected.push(
+      ...availableTickets.slice(0, count).map((ticket) => ticket.ticketId)
+    );
+
+    if (selected.length < passengers) {
+      console.error("Not enough tickets available for all passengers");
+      alert("Chipta yetarli emas! Iltimos, boshqa chipta tanlang.");
+      setSelectedTickets([]);
+    } else {
+      setSelectedTickets(selected.slice(0, passengers));
+    }
+  };
+
+  const handleSubmit = async (values: { passengers: PassengerForm[] }) => {
+    if (selectedTickets.length !== passengers) {
+      // alert("Yetarli chipta tanlanmagan. Iltimos, qaytadan urinib ko'ring.");
+      return;
+    }
+    const formatDate = (date: any) => {
+      return dayjs(date).format("YYYY-MM-DD");
+    };
+
+    const userId = localStorage.getItem("userId");
+
+    const bookingData = {
+      ticketIds: selectedTickets,
+      employees: values.passengers.map((passenger) => ({
+        ...passenger,
+        birthDate: formatDate(passenger.birthDate),
+        validityPeriod: formatDate(passenger.validityPeriod),
+      })),
+    };
+
+    try {
+      const response = await api.post(
+        `/booking/create-booking?userId=${userId}`,
+        bookingData
+      );
+      console.log("Booking created:", response);
+      // alert("Buyurtma muvaffaqiyatli yaratildi!");
+      // Navigate to success page or clear form
+      notification.success({
+        message: "Success",
+        description: `Booking created successfully!`,
+      });
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      notification.success({
+        message: "Error",
+        description: `Error submitting form. Please try again.`,
+      });
+    }
+  };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="!w-[1168px] ">
-        <Row className="!w-[100%]">
-          {Array.from({ length: floor }, (_, __) => (
-            <Card
-              style={{
-                width: "100%",
-                background: "#f5f8fa",
-                border: 0,
-                marginBlock: "20px",
-              }}
-            >
-              <Text
-                type="danger"
-                style={{
-                  marginBottom: 16,
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                Barcha kataklar to'ldirilishi, yozuvlar lotin alfavitida
-                kiritilishi shart
-              </Text>
-              <Form form={form} layout="vertical">
-                <Row gutter={[16, 16]}>
-                  <Col xl={6}>
-                    <Form.Item name="familiya" label="Familiya">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col xl={6}>
-                    <Form.Item name="ism" label="Ism">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col xl={6}>
-                    <Form.Item name="tugilganSana" label="Tug'ilgan sanangiz">
-                      <DatePicker style={{ width: "100%" }} />
-                    </Form.Item>
-                  </Col>
-                  <Col xl={6}>
-                    <Form.Item name="fuqarolik" label="Fuqarolik">
-                      <Select defaultValue="O'zbekiston">
-                        <Option value="O'zbekiston">O'zbekiston</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                  <Col xl={6}>
-                    <Form.Item name="jinsingiz" label="Jinsingiz">
-                      <Radio.Group style={{ width: "100%", display: "flex" }}>
-                        <Radio.Button style={{ width: "100%" }} value="erkak">
-                          Erkak
-                        </Radio.Button>
-                        <Radio.Button style={{ width: "100%" }} value="ayol">
-                          Ayol
-                        </Radio.Button>
-                      </Radio.Group>
-                    </Form.Item>
-                  </Col>
-
-                  <Col xl={6}>
-                    <Form.Item name="hujjatTuri" label="Hujjat turi">
-                      <Select defaultValue="pasport">
-                        <Option value="pasport">Pasport</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-
-                  <Col xl={6}>
-                    <Form.Item name="seriyaRaqami" label="Seriyasi/raqami">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-
-                  <Col xl={6}>
-                    <Form.Item
-                      name="amalQilishMuddati"
-                      label="Amal qilish muddati"
-                    >
-                      <DatePicker style={{ width: "100%" }} />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Form>
-            </Card>
-          ))}
-        </Row>
+    <Form form={form} onFinish={handleSubmit} className="space-y-6">
+      {passengerForms.map((_, index) => (
+        <Col key={index} span={24}>
+          <Card className="w-full bg-white border-0 shadow-sm">
+            <Text className="block mb-4 text-center text-red-500">
+              Barcha kataklar to&apos;ldirilishi, yozuvlar lotin alfavitida
+              kiritilishi shart
+            </Text>
+            <Row gutter={16}>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "username"]}
+                  label="Username"
+                  rules={[
+                    { required: true, message: "Username kiritish shart" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "firstName"]}
+                  label="First Name"
+                  rules={[
+                    { required: true, message: "First name kiritish shart" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "birthDate"]}
+                  label="Tug'ilgan sana"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Tug'ilgan sana kiritish shart",
+                    },
+                  ]}
+                >
+                  <DatePicker className="w-full" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "citizenship"]}
+                  label="Citizenship"
+                  initialValue="O'zbekiston"
+                >
+                  <Select>
+                    <Option value="O'zbekiston">O&apos;zbekiston</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "serialNumber"]}
+                  label="Seriyasi/raqami"
+                  rules={[
+                    { required: true, message: "Seriya/raqam kiritish shart" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  name={["passengers", index, "validityPeriod"]}
+                  label="Amal qilish muddati"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Amal qilish muddatini kiritish shart",
+                    },
+                  ]}
+                >
+                  <DatePicker className="w-full" />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Card>
+        </Col>
+      ))}
+      <div className="flex justify-center">
+        <Button type="submit">Buyurtma berish</Button>
       </div>
-    </div>
+    </Form>
   );
-};
-
-export default BuyTicket;
+}

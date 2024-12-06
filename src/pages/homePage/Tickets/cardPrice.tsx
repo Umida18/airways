@@ -1,11 +1,52 @@
-import { Button, Card, Col, Divider, Row, Typography } from "antd";
+import { Button, Col, Row, Typography } from "antd";
 import { IoIosInformationCircleOutline } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useFlights } from "../../../context/FlightsContext";
+import { PriceComponent } from "../../../utils/utils";
+
+interface ITickets {
+  arrivalTime?: string;
+  bron?: boolean;
+  classType: string;
+  departureTime?: string;
+  flightNumber?: string;
+  price?: number;
+  ticketId?: string;
+  [key: string]: any;
+}
+
 const CardPrice = () => {
   const navigate = useNavigate();
 
+  const { flights, setFlights } = useFlights();
+
+  const [searchParams] = useSearchParams();
+
+  const passengers = searchParams.get("passengers");
+
+  const colors = ["#479fe1", "#F1C40F", "#16a34a", "#8e44ad", "#e74c3c"];
+
+  const uniqueClassTypes = Array.from(
+    new Set(flights.map((flight) => flight.classType))
+  );
+
+  const getClassTypeColor = (classType: string) => {
+    const index = uniqueClassTypes.indexOf(classType);
+    return colors[index % colors.length];
+  };
+
+  const uniqueFlights = Object.values(
+    flights.reduce<Record<string, ITickets>>((acc, flight) => {
+      if (!acc[flight.classType]) {
+        acc[flight.classType] = flight;
+      }
+      return acc;
+    }, {})
+  );
+  console.log("uniqueFlights", uniqueFlights);
+
   return (
-    <div className="mt-14  ">
+    <div className="mt-14">
       <Typography
         style={{
           color: "#828282",
@@ -21,139 +62,61 @@ const CardPrice = () => {
         <IoIosInformationCircleOutline style={{ color: "#9ca7b1" }} /> Important
         information
       </Typography>
-      <Row gutter={[20, 20]}>
-        <Col xl={6}>
-          <div
-            className="hover:shadow-lg"
-            style={{
-              background: "#e8f1ff",
-              border: "none",
-              paddingBlock: 10,
-              borderRadius: 8,
-            }}
-          >
-            <Typography
+      <Row
+        gutter={[20, 20]}
+        style={{ display: "flex", justifyContent: "center" }}
+      >
+        {uniqueFlights.map((flight) => (
+          <Col xl={6}>
+            <div
+              className="hover:shadow-lg"
               style={{
-                background: "#479fe1",
-                padding: 5,
-                color: "white",
-                fontSize: 18,
+                background: "#e8f1ff",
+                border: "none",
+                paddingBlock: 10,
+                borderRadius: 8,
               }}
             >
-              Economy Classic
-            </Typography>
-            <div className="p-3">
-              {/* <Typography>Seats left: 9</Typography> */}
-              {/* <Divider /> */}
               <Typography
-                style={{ color: "#479fe1", fontWeight: 700, fontSize: 24 }}
-              >
-                1 209 000 <span>UZS</span>
-              </Typography>
-              <Button
-                onClick={() => navigate("/buyTicket")}
-                className="w-full"
                 style={{
-                  color: "#2885cb",
-                  fontSize: "16px",
-                  padding: 20,
-                  //   marginBlock: 10,
-                  marginTop: 30,
+                  background: getClassTypeColor(flight.classType),
+                  padding: 5,
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: 700,
                 }}
               >
-                Go to issue
-              </Button>
-            </div>
-          </div>
-        </Col>
-        <Col xl={6}>
-          <div
-            className="hover:shadow-lg"
-            style={{
-              background: "#e8f1ff",
-              border: "none",
-              paddingBlock: 10,
-              borderRadius: 8,
-            }}
-          >
-            <Typography
-              style={{
-                background: "#479fe1",
-                padding: 5,
-                color: "white",
-                fontSize: 18,
-              }}
-            >
-              Economy Comfort
-            </Typography>
-            <div className="p-3">
-              {/* <Typography>Seats left: 9</Typography> */}
-              {/* <Divider /> */}
-              <Typography
-                style={{ color: "#479fe1", fontWeight: 700, fontSize: 24 }}
-              >
-                1 209 000 <span>UZS</span>
+                {flight.classType}
               </Typography>
-              <Button
-                onClick={() => navigate("/buyTicket")}
-                className="w-full"
-                style={{
-                  color: "#2885cb",
-                  fontSize: "16px",
-                  padding: 20,
-                  //   marginBlock: 10,
-                  marginTop: 30,
-                }}
-              >
-                Go to issue
-              </Button>
+              <div className="p-3">
+                {/* <Typography>Seats left: 9</Typography> */}
+                {/* <Divider /> */}
+                <Typography
+                  style={{ color: "#479fe1", fontWeight: 700, fontSize: 24 }}
+                >
+                  <PriceComponent price={String(flight.price)} />
+                </Typography>
+                <Button
+                  onClick={() =>
+                    navigate(
+                      `/buyTicket?passengers=${passengers}&classType=${flight.classType}`
+                    )
+                  }
+                  className="w-full"
+                  style={{
+                    color: "#2885cb",
+                    fontSize: "16px",
+                    padding: 20,
+                    //   marginBlock: 10,
+                    marginTop: 30,
+                  }}
+                >
+                  Go to issue
+                </Button>
+              </div>
             </div>
-          </div>
-        </Col>
-        <Col xl={6}>
-          <div
-            className="hover:shadow-lg"
-            style={{
-              background: "#e8f1ff",
-              border: "none",
-              paddingBlock: 10,
-              borderRadius: 8,
-            }}
-          >
-            <Typography
-              style={{
-                background: "#ffc100",
-                padding: 5,
-                color: "white",
-                fontSize: 18,
-              }}
-            >
-              Business
-            </Typography>
-            <div className="p-3">
-              {/* <Typography>Seats left: 9</Typography> */}
-              {/* <Divider /> */}
-              <Typography
-                style={{ color: "#479fe1", fontWeight: 700, fontSize: 24 }}
-              >
-                1 209 000 <span>UZS</span>
-              </Typography>
-              <Button
-                onClick={() => navigate("/buyTicket")}
-                className="w-full"
-                style={{
-                  color: "#2885cb",
-                  fontSize: "16px",
-                  padding: 20,
-                  //   marginBlock: 10,
-                  marginTop: 30,
-                }}
-              >
-                Go to issue
-              </Button>
-            </div>
-          </div>
-        </Col>{" "}
+          </Col>
+        ))}
       </Row>
     </div>
   );

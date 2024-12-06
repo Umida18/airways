@@ -23,8 +23,14 @@ import MainLayout from "./pages/homePage/mainPage";
 import LoginPage from "./login/login";
 import FlightsPage from "./pages/homePage/Tickets/Tickets";
 import { FloorProvider } from "./pages/homePage/mainPage/FloorContext";
-import BuyTicket from "./pages/homePage/buyTicket/buyTicket";
+import { BuyTicket } from "./pages/homePage/buyTicket/buyTicket";
+import { FlightsProvider } from "./context/FlightsContext";
 import { Users } from "./pages/adminPage/users";
+import DashboardPage from "./components/layout/layout";
+import { ProfileSettings } from "./components/profileSettings";
+import { OrdersHistory } from "./components/ordersHistory";
+import About from "./pages/homePage/about/about";
+import Question from "./pages/homePage/question/question";
 
 interface ProtectedRouteProps {
   isAuthenticated: boolean;
@@ -66,43 +72,52 @@ function App() {
           <CacheProvider value={cache}>
             {/* <Provider store={store}> */}
             <FloorProvider>
-              <Routes>
-                <Route path="/" element={<MainLayout />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<LoginPage />} />
-                <Route path="/flightsPage" element={<FlightsPage />} />
-                <Route path="/buyTicket" element={<BuyTicket />} />
+              <FlightsProvider>
+                <Routes>
+                  <Route path="/" element={<MainLayout />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<LoginPage />} />
+                  <Route path="/flightsPage" element={<FlightsPage />} />
+                  <Route path="/buyTicket" element={<BuyTicket />} />
+                  <Route path="/dashboardPage" element={<DashboardPage />} />
+                  <Route path="/profile" element={<ProfileSettings />} />
+                  <Route path="/dashboardPage" element={<OrdersHistory />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/question" element={<Question />} />
+                  {/* <Route path="/dashboardPage" element={<DashboardPage />} /> */}
 
-                <Route
-                  path="/superAdmin/"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <Layout>
-                        <Outlet />
-                      </Layout>
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route path="admins" element={<SuperAdmins />} />
-                </Route>
-              </Routes>
-              <Routes>
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                      <AdminLayout>
-                        <Outlet />
-                      </AdminLayout>
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route path="users" element={<Users />} />
-                  <Route path="tickets" element={<Tickets />} />
-                  <Route path="flights" element={<Flights />} />
-                  <Route path="airplanes" element={<Airplanes />} />
-                </Route>
-              </Routes>
+                  <Route
+                    path="/superAdmin/"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <Layout>
+                          <Outlet />
+                        </Layout>
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route path="admins" element={<SuperAdmins />} />
+                  </Route>
+                </Routes>
+                <Routes>
+                  <Route
+                    path="/admin"
+                    element={
+                      <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <AdminLayout>
+                          <Outlet />
+                        </AdminLayout>
+                      </ProtectedRoute>
+                    }
+                  >
+                    {/* <Route path="admins" element={<Admins />} /> */}
+                    <Route path="users" element={<Users />} />
+                    <Route path="tickets" element={<Tickets />} />
+                    <Route path="flights" element={<Flights />} />
+                    <Route path="airplanes" element={<Airplanes />} />
+                  </Route>
+                </Routes>
+              </FlightsProvider>
             </FloorProvider>
             {/* </Provider> */}
           </CacheProvider>
