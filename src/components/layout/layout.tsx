@@ -3,16 +3,14 @@
 import { useEffect, useState } from "react";
 import { Sidebar } from "../sidebar";
 import { ProfileSettings } from "../profileSettings";
-import { Bell, Plane } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Plane } from "lucide-react";
 import { Typography } from "antd";
 import api from "../api";
-import { OrdersHistory } from "../ordersHistory";
 import { Balance } from "../balance";
 import { Tickets } from "../tickets";
 import { IUser } from "@/type/type";
 import { Link } from "react-router-dom";
-// import Image from 'next/image'
+import BuyTicketsCard from "../cardBalance";
 
 export default function DashboardPage() {
   const [activeSection, setActiveSection] = useState("profile");
@@ -60,7 +58,7 @@ export default function DashboardPage() {
         />
         <main className="flex-1">
           {activeSection === "profile" && <ProfileSettings />}
-          {activeSection === "balance" && <Balance />}
+          {activeSection === "balance" && <BuyTicketsCard />}
           {activeSection === "tickets" && <Tickets />}
         </main>
       </div>

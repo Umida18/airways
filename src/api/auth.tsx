@@ -8,9 +8,11 @@ export const login = async (data: { username: string; password: string }) => {
 
     const token = response.data?.token; // Tokenni qaytarish yo'lini tekshiring
     const userId = response.data.userId;
+    const userRole = response.data.userRole;
     if (token) {
       localStorage.setItem("token", token);
       localStorage.setItem("userId", userId);
+      localStorage.setItem("userRole", userRole);
       console.log("Token saved to localStorage:", token);
       return response.data;
     } else {

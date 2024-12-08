@@ -56,7 +56,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated] = useState(true);
 
   return (
     <BrowserRouter>

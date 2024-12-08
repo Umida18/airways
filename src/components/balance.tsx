@@ -2,16 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button, Form, InputNumber, notification } from "antd";
 import { IUser } from "@/type/type";
 import api from "./api";
-import { useNavigate } from "react-router-dom";
 
 export function Balance() {
   const [form] = Form.useForm();
   const [user, setUser] = useState<IUser | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -69,7 +66,7 @@ export function Balance() {
       </CardHeader>
       <CardContent>
         <p className="text-2xl font-bold mb-6 mt-5">
-          Current Balance: {user?.balance} SUM
+          Current Balance: {user?.balance} $
         </p>
         <Form form={form} onFinish={handleSendMoney} layout="vertical">
           <Form.Item

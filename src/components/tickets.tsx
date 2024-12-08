@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -8,87 +10,71 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plane, Calendar, Clock, CheckCircle2 } from "lucide-react";
 import api from "./api";
-import { useRoutes } from "react-router-dom";
 
-const upcomingFlights = [
-  {
-    id: 1,
-    from: "Tashkent",
-    to: "Moscow",
-    date: "2023-12-15",
-    time: "14:30",
-    flightNumber: "HY 601",
-  },
-  {
-    id: 2,
-    from: "Samarkand",
-    to: "St. Petersburg",
-    date: "2023-12-20",
-    time: "10:15",
-    flightNumber: "HY 632",
-  },
-  {
-    id: 3,
-    from: "Bukhara",
-    to: "Kazan",
-    date: "2024-01-05",
-    time: "08:45",
-    flightNumber: "HY 650",
-  },
-];
+interface Ticket {
+  ticketId: string;
+  flightNumber: string;
+  departureTime: string;
+  arrivalTime: string;
+  departureAirport: string;
+  arrivalAirport: string;
 
-const pastFlights = [
-  {
-    id: 4,
-    from: "Tashkent",
-    to: "Dubai",
-    date: "2023-11-10",
-    time: "23:45",
-    flightNumber: "HY 333",
-  },
-  {
-    id: 5,
-    from: "Nukus",
-    to: "Moscow",
-    date: "2023-10-25",
-    time: "06:20",
-    flightNumber: "HY 602",
-  },
-  {
-    id: 6,
-    from: "Urgench",
-    to: "St. Petersburg",
-    date: "2023-09-30",
-    time: "12:00",
-    flightNumber: "HY 633",
-  },
-];
+  price: number;
+  classType: string;
+  bron: boolean;
+  from: string;
+  to: string;
+}
 
 export function Tickets() {
   const [activeTab, setActiveTab] = useState("upcoming");
-  const [tickets, setTickets] = useState([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTicket = async () => {
-      const userId = localStorage.getItem("userId");
-      console.log("userId", userId);
+    const fetchTickets = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        const res = await api.get(
+          `/booking/get-tickets-flight-by-userId?userId=${userId}`
+        );
+        console.log("Res", res);
 
-      const res = await api.get(
-        `/booking/get-tickets-flight-by-userId/${userId}`
-      );
-      console.log("resTicket", res);
-
-      setTickets(res.data);
+        setTickets(res.data);
+      } catch (error) {
+        console.error("Error fetching tickets:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchTicket();
+    fetchTickets();
   }, []);
 
+  const filterTickets = (tickets: Ticket[]) => {
+    const now = new Date();
+
+    const upcomingTickets = tickets.filter(
+      (ticket) => new Date(ticket.departureTime) > now
+    );
+
+    const pastTickets = tickets.filter(
+      (ticket) => new Date(ticket.departureTime) <= now
+    );
+    console.log("pastTickets", pastTickets);
+
+    return {
+      upcoming: upcomingTickets,
+      past: pastTickets,
+    };
+  };
+
+  const { upcoming, past } = filterTickets(tickets);
+
   const renderFlightTable = (
-    flights: typeof upcomingFlights,
+    flights: Ticket[],
     showStatus: boolean = false
   ) => (
     <Table>
@@ -98,17 +84,16 @@ export function Tickets() {
           <TableHead>Date</TableHead>
           <TableHead>Time</TableHead>
           {showStatus && <TableHead>Status</TableHead>}
-          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {flights.map((flight) => (
-          <TableRow key={flight.id}>
+          <TableRow key={flight.ticketId}>
             <TableCell>
               <div className="flex items-center space-x-2">
                 <Plane className="h-4 w-4 text-blue-500" />
                 <span>
-                  {flight.from} - {flight.to}
+                  {flight.departureAirport} - {flight.arrivalAirport}
                 </span>
               </div>
               <div className="text-sm text-gray-500">{flight.flightNumber}</div>
@@ -116,13 +101,17 @@ export function Tickets() {
             <TableCell>
               <div className="flex items-center space-x-2">
                 <Calendar className="h-4 w-4 text-gray-400" />
-                <span>{flight.date}</span>
+                <span>
+                  {new Date(flight.departureTime).toLocaleDateString()}
+                </span>
               </div>
             </TableCell>
             <TableCell>
               <div className="flex items-center space-x-2">
                 <Clock className="h-4 w-4 text-gray-400" />
-                <span>{flight.time}</span>
+                <span>
+                  {new Date(flight.departureTime).toLocaleTimeString()}
+                </span>
               </div>
             </TableCell>
             {showStatus && (
@@ -133,16 +122,31 @@ export function Tickets() {
                 </div>
               </TableCell>
             )}
-            <TableCell>
-              <Button variant="outline" size="sm">
-                View Details
-              </Button>
-            </TableCell>
           </TableRow>
         ))}
+        {flights.length === 0 && (
+          <TableRow>
+            <TableCell
+              colSpan={showStatus ? 4 : 3}
+              className="text-center text-gray-500"
+            >
+              No flights found
+            </TableCell>
+          </TableRow>
+        )}
       </TableBody>
     </Table>
   );
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex justify-center">Loading tickets...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -156,10 +160,10 @@ export function Tickets() {
             <TabsTrigger value="past">Flight History</TabsTrigger>
           </TabsList>
           <TabsContent value="upcoming">
-            {renderFlightTable(upcomingFlights)}
+            {renderFlightTable(upcoming)}
           </TabsContent>
           <TabsContent value="past">
-            {renderFlightTable(pastFlights, true)}
+            {renderFlightTable(past, true)}
           </TabsContent>
         </Tabs>
       </CardContent>

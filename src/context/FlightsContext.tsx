@@ -1,4 +1,10 @@
-import { ReactNode, createContext, useContext, useState } from "react";
+import {
+  ReactNode,
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
 
 interface Flight {
   arrivalTime: string;
@@ -9,6 +15,7 @@ interface Flight {
   price: number;
   ticketId: string;
 }
+
 interface FlightsContextProps {
   flights: Flight[];
   setFlights: React.Dispatch<React.SetStateAction<Flight[]>>;
@@ -21,7 +28,14 @@ const FlightsContext = createContext<FlightsContextProps | undefined>(
 export const FlightsProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [flights, setFlights] = useState<Flight[]>([]);
+  const [flights, setFlights] = useState<Flight[]>(() => {
+    const storedFlights = localStorage.getItem("flights");
+    return storedFlights ? JSON.parse(storedFlights) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("flights", JSON.stringify(flights));
+  }, [flights]);
 
   return (
     <FlightsContext.Provider value={{ flights, setFlights }}>

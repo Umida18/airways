@@ -4,29 +4,19 @@ import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Wallet } from "lucide-react";
 import api from "./api";
 import { Col, Form, InputNumber, Row, notification } from "antd";
 import { IUser } from "@/type/type";
 
-interface BuyTicketsCardProps {
-  initialBalance: number;
-}
-
 export default function BuyTicketsCard() {
-  const [balance, setBalance] = useState();
-  const [amount, setAmount] = useState("");
   const [form] = Form.useForm();
   const [user, setUser] = useState<IUser | null>(null);
-
-  const handleAddFunds = () => {};
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -65,7 +55,7 @@ export default function BuyTicketsCard() {
       form.resetFields();
       notification.success({
         message: "Success",
-        description: `Successfully sent ${values.balance} SUM to ${user.username}.`,
+        description: `Successfully sent ${values.balance} USD to ${user.username}.`,
       });
       // }
     } catch (error) {
@@ -78,10 +68,10 @@ export default function BuyTicketsCard() {
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full  lg:!my-0 my-5">
       <CardHeader>
         <CardTitle className="text-xl font-bold text-[#2885cb]">
-          Check your balance and add funds
+          Check your balance
         </CardTitle>
         {/* <CardDescription>Check your balance and add funds</CardDescription> */}
       </CardHeader>
@@ -94,7 +84,7 @@ export default function BuyTicketsCard() {
                 Current Balance
               </p>
               <p className="text-2xl font-bold text-[#479fe1]">
-                {user?.balance} SUM
+                $ {user?.balance}
               </p>
             </div>
           </div>
@@ -110,9 +100,14 @@ export default function BuyTicketsCard() {
             className="flex-grow"
           />
           <Button onClick={handleAddFunds}>Add Funds</Button> */}
-          <Form form={form} onFinish={handleSendMoney} layout="horizontal">
+          <Form
+            style={{ minWidth: "100%" }}
+            form={form}
+            onFinish={handleSendMoney}
+            layout="horizontal"
+          >
             <Row gutter={[10, 10]}>
-              <Col xl={24} sm={24} style={{ height: "36px" }}>
+              <Col xl={24} sm={24} style={{ height: "36px", minWidth: "full" }}>
                 <Form.Item
                   name="balance"
                   rules={[

@@ -23,3 +23,7 @@ export interface IUser {
   address: string;
   passportSeries: string;
 }
+export interface IQA {
+  question: string;
+  answer: string;
+}

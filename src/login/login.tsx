@@ -75,13 +75,13 @@ const LoginPage = () => {
       if (!token) {
         throw new Error("Token not found in response.");
       }
+      console.log("Login response:", response);
 
       localStorage.setItem("token", token);
       // localStorage.setItem("userId", userId);
       notification.success({
         message: "Login successfully!",
       });
-      message.success("Login successfully!");
 
       navigate("/");
     } catch (error: any) {

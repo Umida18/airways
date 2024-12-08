@@ -1,14 +1,4 @@
-import {
-  Gift,
-  Package,
-  Ticket,
-  Award,
-  Bell,
-  Settings,
-  LogOut,
-  RotateCcw,
-  Box,
-} from "lucide-react";
+import { Ticket, Award, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "antd";
 import api from "./api";
@@ -68,7 +58,7 @@ export function Sidebar({ activeSection, setActiveSection }: SidebarProps) {
         <div className="flex items-center gap-2">
           <Typography style={{}}>Balance:</Typography>
 
-          <span className="text-xl font-bold">{user?.balance} SUM</span>
+          <span className="text-xl font-bold">$ {user?.balance}</span>
         </div>
       </div>
       <nav className="flex flex-col justify-between h-[40vh]">

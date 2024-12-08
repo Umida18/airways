@@ -3,7 +3,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 // import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 
 import { Button, Col, DatePicker, Form, Row, notification } from "antd";
 import { IUser } from "@/type/type";
@@ -13,7 +12,7 @@ import dayjs from "dayjs";
 
 export function ProfileSettings() {
   const [form] = Form.useForm();
-  const [user, setUser] = useState<IUser>();
+  const [_, setUser] = useState<IUser>();
 
   useEffect(() => {
     const fetchUser = async () => {

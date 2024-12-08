@@ -9,76 +9,23 @@ import {
   Row,
   Select,
   Typography,
+  notification,
 } from "antd";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect } from "react";
 import Tickets from "./Cards";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./index.css";
 import api from "../../../api/api";
 import dayjs from "dayjs";
 import { useFlights } from "../../../context/FlightsContext";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, Plane, User } from "lucide-react";
-const { Header, Content } = Layout;
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { handleApiError } from "@/utils/apiErrorHandler";
+import HeaderMain from "@/components/headerMain";
+import { FooterMain } from "@/components/footer";
+
+const { Content } = Layout;
 
 export default function MainLayout() {
   const navigate = useNavigate();
-  const { flights, setFlights } = useFlights();
-  const [isOpen, setIsOpen] = useState(false);
-
-  const data = [
-    {
-      city: "Samarkand",
-      dateRange: "18 Nov 2024 - 23 Nov 2024",
-      price: "USD 1894",
-      image:
-        "https://izb-school.uz/wp-content/uploads/2021/11/samarkand-uzbekistan-ancient-city-evening-sunset.jpg",
-    },
-    {
-      city: "Bukhara",
-      dateRange: "18 Nov 2024 - 23 Nov 2024",
-      price: "USD 1894",
-      image:
-        "https://www.afisha.uz/uploads/media/2024/07/726ed482558faef00c995eff8b4ba97f.jpg",
-    },
-    {
-      city: "New York",
-      dateRange: "18 Nov 2024 - 23 Nov 2024",
-      price: "USD 1894",
-      image: "newy.jpeg",
-    },
-    {
-      city: "Dubai",
-      dateRange: "18 Nov 2024 - 23 Nov 2024",
-      price: "USD 1894",
-      image: "dub.jpeg",
-    },
-    {
-      city: "Tashkent",
-      dateRange: "18 Nov 2024 - 23 Nov 2024",
-      price: "USD 1894",
-      image: "tashk.jpeg",
-    },
-    {
-      city: "Istanbul",
-      dateRange: "18 Nov 2024 - 23 Nov 2024",
-      price: "USD 1894",
-      image: "ist.jpeg",
-    },
-    {
-      city: "Azerbaijan",
-      dateRange: "18 Nov 2024 - 23 Nov 2024",
-      price: "USD 1894",
-      image: "azr.jpeg",
-    },
-  ];
+  const { setFlights } = useFlights();
 
   const [form] = Form.useForm();
 
@@ -104,132 +51,37 @@ export default function MainLayout() {
           passengers: values.passengers,
         });
         setFlights(res.data);
-        console.log("res", res);
+        localStorage.setItem("lastSearchParams", JSON.stringify(values));
         navigate(`/flightsPage?passengers=${values.passengers}`);
-      } catch (error) {
+      } catch (error: any) {
         console.log("error", error);
+        if (error.response && error.response.status === 404) {
+          notification.error({
+            message: "In this date, there are no flights",
+          });
+        }
       }
     },
     [navigate, setFlights]
   );
 
-  const handleCapinet = async () => {
-    const userId = localStorage.getItem("userId");
-    try {
-      const res = await api.get(`/user/find-by-id/${userId}`);
-      navigate("/dashboardPage");
-    } catch (error) {
-      handleApiError(error, navigate);
+  useEffect(() => {
+    const lastSearchParams = localStorage.getItem("lastSearchParams");
+    if (lastSearchParams) {
+      const parsedParams = JSON.parse(lastSearchParams);
+      form.setFieldsValue({
+        ...parsedParams,
+        departureTime: parsedParams.departureTime
+          ? dayjs(parsedParams.departureTime)
+          : undefined,
+      });
     }
-  };
+  }, [form]);
 
   return (
     <>
-      <Layout className="min-h-[590px]">
-        <Header className="bg-[#479fe1] shadow-md h-[100%]">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-2">
-                <Plane className="h-8 w-8 text-white" />
-                <span className="text-2xl font-bold text-white">
-                  Uzbekistan Airways
-                </span>
-              </Link>
-              <nav className="hidden md:flex space-x-8">
-                <Link
-                  to="/question"
-                  className="text-white flex font-semibold text-lg justify-center items-center  h-[32px] hover:text-primary"
-                >
-                  Questions and answers
-                </Link>
-                <Link
-                  to="/about"
-                  className="text-white flex justify-center  font-semibold text-lg items-center h-[32px] hover:text-primary"
-                >
-                  About Us
-                </Link>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      // variant="outlined"
-                      className="text-white hover:text-primary   font-semibold text-lg"
-                    >
-                      Admin <ChevronDown className="ml-1 h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem>
-                      <Link to="/admin/users">Admin Panel</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Link to="/superAdmin/admins">Super Admin</Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Button
-                  onClick={handleCapinet}
-                  variant="outlined"
-                  className="text-white  font-semibold text-lg bg-transparent border-white border-2 border-primary hover:bg-primary hover:text-white"
-                >
-                  <User className="mr-2 h-4 w-4" /> Cabinet
-                </Button>
-              </nav>
-              <div className="md:hidden">
-                <Button variant="outlined" onClick={() => setIsOpen(!isOpen)}>
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
-                </Button>
-              </div>
-            </div>
-            {isOpen && (
-              <div className="mt-4 md:hidden">
-                <Link
-                  to="/flights"
-                  className="block py-2 text-gray-600 hover:text-primary"
-                >
-                  Questions and answers
-                </Link>
-                <Link
-                  to="/about"
-                  className="block py-2 text-gray-600 hover:text-primary"
-                >
-                  About Us
-                </Link>
-                <Link
-                  to="/admin"
-                  className="block py-2 text-gray-600 hover:text-primary"
-                >
-                  Admin Panel
-                </Link>
-                <Link
-                  to="/super-admin"
-                  className="block py-2 text-gray-600 hover:text-primary"
-                >
-                  Super Admin
-                </Link>
-                <Link
-                  to="/cabinet"
-                  className="block py-2 text-gray-600 hover:text-primary"
-                >
-                  Cabinet
-                </Link>
-              </div>
-            )}
-          </div>
-        </Header>
-
+      <Layout className="min-h-[100vh]">
+        <HeaderMain />
         <Content
           className=" min-h-[590px] bg-center bg-no-repeat bg-cover bg-[url('https://assets.wego.com/image/upload/f_auto,q_auto:best,w_3840/v1725958728/flights/airlines_hero/HY_4.jpg')]"
           style={{
@@ -240,7 +92,6 @@ export default function MainLayout() {
             flexDirection: "column",
           }}
         >
-          <div></div>
           <div className="w-[358px] h-[74px] z-10 relative top-3 shadow-md rounded-full flex justify-center gap-4 items-center bg-white p-3">
             <div>
               <img
@@ -259,7 +110,13 @@ export default function MainLayout() {
             </div>
           </div>
           <Card bordered={false} className="lg:!w-[1168px]">
-            <Form form={form} onFinish={onFinish} layout="vertical">
+            <Form
+              initialValues={{ remember: true }}
+              autoComplete="off"
+              form={form}
+              onFinish={onFinish}
+              layout="vertical"
+            >
               <Row gutter={[16, 16]}>
                 <Col xs={24} sm={12} md={8} lg={6}>
                   <Form.Item
@@ -371,8 +228,9 @@ export default function MainLayout() {
             </Form>
           </Card>
         </Content>
+        <Tickets />
+        <FooterMain />
       </Layout>
-      <Tickets data={data} />
     </>
   );
 }

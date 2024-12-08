@@ -18,7 +18,7 @@ interface ITickets {
 const CardPrice = () => {
   const navigate = useNavigate();
 
-  const { flights, setFlights } = useFlights();
+  const { flights } = useFlights();
 
   const [searchParams] = useSearchParams();
 
@@ -62,62 +62,67 @@ const CardPrice = () => {
         <IoIosInformationCircleOutline style={{ color: "#9ca7b1" }} /> Important
         information
       </Typography>
-      <Row
-        gutter={[20, 20]}
-        style={{ display: "flex", justifyContent: "center" }}
-      >
-        {uniqueFlights.map((flight) => (
-          <Col xl={6}>
-            <div
-              className="hover:shadow-lg"
-              style={{
-                background: "#e8f1ff",
-                border: "none",
-                paddingBlock: 10,
-                borderRadius: 8,
-              }}
-            >
-              <Typography
+      {uniqueFlights.length > 0 ? (
+        <Row
+          gutter={[20, 20]}
+          style={{ display: "flex", justifyContent: "center" }}
+        >
+          {uniqueFlights.map((flight) => (
+            <Col xl={6} key={flight.ticketId}>
+              <div
+                className="hover:shadow-lg"
                 style={{
-                  background: getClassTypeColor(flight.classType),
-                  padding: 5,
-                  color: "white",
-                  fontSize: 18,
-                  fontWeight: 700,
+                  background: "#e8f1ff",
+                  border: "none",
+                  paddingBlock: 10,
+                  borderRadius: 8,
                 }}
               >
-                {flight.classType}
-              </Typography>
-              <div className="p-3">
-                {/* <Typography>Seats left: 9</Typography> */}
-                {/* <Divider /> */}
                 <Typography
-                  style={{ color: "#479fe1", fontWeight: 700, fontSize: 24 }}
-                >
-                  <PriceComponent price={String(flight.price)} />
-                </Typography>
-                <Button
-                  onClick={() =>
-                    navigate(
-                      `/buyTicket?passengers=${passengers}&classType=${flight.classType}`
-                    )
-                  }
-                  className="w-full"
                   style={{
-                    color: "#2885cb",
-                    fontSize: "16px",
-                    padding: 20,
-                    //   marginBlock: 10,
-                    marginTop: 30,
+                    background: getClassTypeColor(flight.classType),
+                    padding: 5,
+                    color: "white",
+                    fontSize: 18,
+                    fontWeight: 700,
                   }}
                 >
-                  Go to issue
-                </Button>
+                  {flight.classType}
+                </Typography>
+                <div className="p-3">
+                  <Typography
+                    style={{ color: "#479fe1", fontWeight: 700, fontSize: 24 }}
+                  >
+                    <PriceComponent price={String(flight.price)} />
+                  </Typography>
+                  <Button
+                    onClick={() =>
+                      navigate(
+                        `/buyTicket?passengers=${passengers}&classType=${flight.classType}`
+                      )
+                    }
+                    className="w-full"
+                    style={{
+                      color: "#2885cb",
+                      fontSize: "16px",
+                      padding: 20,
+                      marginTop: 30,
+                    }}
+                  >
+                    Go to issue
+                  </Button>
+                </div>
               </div>
-            </div>
-          </Col>
-        ))}
-      </Row>
+            </Col>
+          ))}
+        </Row>
+      ) : (
+        <Typography
+          style={{ textAlign: "center", fontSize: "18px", color: "#828282" }}
+        >
+          No flights available. Please try a new search.
+        </Typography>
+      )}
     </div>
   );
 };
