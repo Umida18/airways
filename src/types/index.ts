@@ -12,18 +12,18 @@ export interface User {
   password: string;
   email: string;
   role: string;
-  birthday: string;
+  birthDate: string;
   phoneNumber: string;
   balance: number;
   address: string;
-  passportSeriies: string;
+  passportSeries: string;
 }
 
 export type Airport =
   | "TASHKENT"
   | "SAMARKAND"
   | "BUKHARA"
-  | "NAVOI"
+  | "NAVOIY"
   | "NAMANGAN"
   | "ANDIJON"
   | "FERGANA"
@@ -35,7 +35,7 @@ export type Airport =
 export type FlightStatus = "ON_TIME" | "DELAYED";
 
 export interface FlightType {
-  id: string;
+  flightId: string;
   airplane: string;
   flightNumber: string;
   departureAirport: Airport;
@@ -54,13 +54,13 @@ export type ClassType = "BUSINESS" | "FIRST" | "ECONOMY";
 export const classtype = ["BUSINESS", "FIRST", "ECONOMY"];
 
 export interface TicketType {
-  id: string;
-  flight: string;
+  ticketId: string;
+  flightNumber: string;
   price: number;
-  seatNumber: string;
+  departureTime: string;
+  arrivalTime: string;
   classType: ClassType;
-  bookingDate: string;
-  // nearWindow: boolean;
+  bron: boolean;
   // ticketStatus: string;
   // departureTime: string;
   // arrivalTime: string;

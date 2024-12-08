@@ -36,11 +36,7 @@ export function Users() {
       dataIndex: "email",
       key: "email",
     },
-    // {
-    //   title: "Password",
-    //   dataIndex: "password",
-    //   key: "password",
-    // },
+
     {
       title: "Role",
       dataIndex: "role",
@@ -48,8 +44,8 @@ export function Users() {
     },
     {
       title: "birthday",
-      dataIndex: "birthday",
-      key: "birthday",
+      dataIndex: "birthDate",
+      key: "birthDate",
     },
     {
       title: "phoneNumber",

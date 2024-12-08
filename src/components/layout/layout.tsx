@@ -6,7 +6,6 @@ import { ProfileSettings } from "../profileSettings";
 import { Plane } from "lucide-react";
 import { Typography } from "antd";
 import api from "../api";
-import { Balance } from "../balance";
 import { Tickets } from "../tickets";
 import { IUser } from "@/type/type";
 import { Link } from "react-router-dom";

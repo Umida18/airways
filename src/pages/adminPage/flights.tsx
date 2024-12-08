@@ -14,11 +14,15 @@ export function Flights() {
   // const [editingFlight, setEditingFlight] = useState<FlightType | null>(null);
   const [flight, setFlight] = useState<FlightType[]>([]);
   const [airplanes, setAirplanes] = useState<AirplaneType[]>([]);
+  const [airplanesOptions, setAirplanesOptions] = useState<AirplaneType[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [havedata, setHavedata] = useState(false);
+  const [formValues, setFormValues] = useState<Record<string, any>>({});
 
   useEffect(() => {
     fetchFligths();
     fetchAirplanes();
+    fetchAirplanesOption();
   }, []);
 
   const fetchFligths = async () => {
@@ -33,6 +37,22 @@ export function Flights() {
     try {
       const response = await api.get("/airplane/get-all");
       setAirplanes(response.data);
+    } catch (error) {
+      message.error("Failed to fetch flights");
+    }
+  };
+
+  const fetchAirplanesOption = async () => {
+    try {
+      const response = await api.get("/flight/get-available-airplanes", {
+        params: {
+          departureTime: "2024-12-13T12:21:21.594",
+          flightAirport: "NAMANGAN",
+        },
+      });
+
+      setAirplanesOptions(response.data);
+      console.log("airplanes data", response.data);
     } catch (error) {
       message.error("Failed to fetch flights");
     }
@@ -116,19 +136,7 @@ export function Flights() {
       dataIndex: "arrivalTime",
       key: "arrivalTime",
     },
-    {
-      title: "active",
-      dataIndex: "",
-      key: "active",
-      render: (_: string, record: FlightType) => {
-        console.log(record);
-        return record.flightStatus == "ON_TIME" ? (
-          <p className="text-green-400 font-bold">Active</p>
-        ) : (
-          <p className="text-red-500 font-bold">Inactive</p>
-        );
-      },
-    },
+
     {
       title: "passengers",
       dataIndex: "airplane",
@@ -151,18 +159,16 @@ export function Flights() {
       key: "flightStatus",
       render: (status: string, record: FlightType) => {
         const handleChange = (value: string) => {
-          updateFlightStatus(record.id, value);
+          updateFlightStatus(record.flightId, value);
         };
 
+        console.log(record);
         const getColor = (s: string) => {
           switch (s) {
             case "ON_TIME":
               return "text-green-400";
             case "DELAYED":
               return "text-red-500";
-
-            default:
-              return "";
           }
         };
 
@@ -173,14 +179,14 @@ export function Flights() {
             className={`font-bold ${getColor(status)}`}
           >
             <Option
-              key={status}
+              key="ON_TIME"
               value="ON_TIME"
               className="text-green-400 font-bold"
             >
               ON TIME
             </Option>
             <Option
-              key={status}
+              key="DELAYED"
               value="DELAYED"
               className="text-yellow-500 font-bold"
             >
@@ -221,7 +227,7 @@ export function Flights() {
       value: item,
     };
   });
-  const airplaneOptions = airplanes.map((item: AirplaneType) => {
+  const airplaneOptions = airplanesOptions.map((item: AirplaneType) => {
     return {
       label: item.model,
       value: item.id,
@@ -231,13 +237,13 @@ export function Flights() {
   const fields = useMemo(
     () =>
       [
-        {
-          label: "airplane",
-          name: "airplane",
-          rules: [{ required: true, message: "Пустое поле!" }],
-          type: "select",
-          options: airplaneOptions,
-        },
+        // {
+        //   label: "airplane",
+        //   name: "airplane",
+        //   rules: [{ required: true, message: "Пустое поле!" }],
+        //   type: "select",
+        //   options: airplaneOptions,
+        // },
         {
           label: "flightNumber",
           name: "flightNumber",
@@ -278,14 +284,48 @@ export function Flights() {
       ] as FieldType[],
     [flight]
   );
+
+  const field = useMemo(
+    () =>
+      [
+        {
+          label: "airplane",
+          name: "airplane",
+          rules: [{ required: true, message: "Пустое поле!" }],
+          type: "select",
+          options: airplaneOptions,
+        },
+      ] as FieldType[],
+    [flight]
+  );
+  const onFin = async (values: Record<string, any>) => {
+    try {
+      const response = await api.get("/flight/get-available-airplanes", {
+        params: {
+          departureTime: values.departureTime,
+          flightAirport: values.departureAirport,
+        },
+      });
+
+      setAirplanesOptions(response.data);
+      console.log("airplanes data", response.data);
+
+      setFormValues(values);
+      setHavedata(true);
+    } catch (error) {
+      message.error("Failed to save FLIGHT");
+    }
+  };
   const onFinish = async (values: Record<string, any>) => {
     try {
       await api.post("/flight/create-flight", {
         ...values,
+        ...formValues,
       });
       message.success("Flight added successfully");
       setIsModalVisible(false);
       fetchFligths();
+      setHavedata(false);
     } catch (error) {
       message.error("Failed to save FLIGHT");
     }
@@ -303,7 +343,14 @@ export function Flights() {
             Add New Flight
           </Button>
         </div>
-        <Table columns={columns} dataSource={flight} />
+        <Table
+          columns={columns}
+          dataSource={flight}
+          scroll={{
+            x: 1000, // Gorizontal scroll
+            y: "150vh", // Vertikal scroll
+          }}
+        />
       </div>
 
       <Drawer
@@ -312,7 +359,6 @@ export function Flights() {
         open={isModalVisible}
         extra={
           <Space>
-            {/* <Button onClick={handleModalCancel}>Cancel</Button> */}
             <Button onClick={() => form.submit()} type="primary">
               Save
             </Button>
@@ -325,9 +371,18 @@ export function Flights() {
           fields={fields}
           columnSize={2}
           form={form}
-          onFinish={onFinish}
+          onFinish={onFin}
           loading={false}
         />
+        {havedata && (
+          <AutoForm
+            fields={field}
+            columnSize={2}
+            form={form}
+            onFinish={onFinish}
+            loading={false}
+          />
+        )}
       </Drawer>
     </div>
   );

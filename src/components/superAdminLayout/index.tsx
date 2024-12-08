@@ -1,49 +1,87 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Button, Layout as LayoutAntd, Menu, Modal, Typography } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Layout as LayoutAntd,
+  Menu,
+  message,
+  Modal,
+  Typography,
+} from "antd";
 import { Link, useLocation } from "react-router-dom";
+import api from "../api";
+import { User } from "../../types";
 const { Title } = Typography;
 const { Header, Sider, Content } = LayoutAntd;
-export const dataSuperAdmin = [
-  {
-    id: 1,
-    username: "Davron",
-    surname: "Davronov",
-    password: "davronov123",
-    role: "SUPERADMIN",
-    email: "davronov@gmail.com",
-    birthday: "2024-11-11",
-    phoneNumber: "+998901234567",
-    balance: 0,
-    address: "Tashkent",
-    passportSeries: "ad1234567",
-  },
-];
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const path = location.pathname.split("/superAdmin/")[1];
   console.log("path", path);
-  // const [selectedKey, setSelectedKey] = useState<string>(path);
   let title = path.charAt(0).toUpperCase() + path.slice(1);
-  // const handleClick = (e: any) => {
-  //   setSelectedKey(e.key);
-  // };
-  // console.log(title);
+  const [me, setMe] = useState<User | null>(null);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [isEditMode, setEditMode] = useState(false);
+  const [form] = Form.useForm();
+  const userId = localStorage.getItem("userId");
+  console.log(userId); // User IDni konsolga chiqarish
 
-  // useEffect(() => {
-  //   setSelectedKey(location.pathname.slice(1));
-  // }, []);
+  useEffect(() => {
+    FetchMe();
+  }, []);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const FetchMe = async () => {
+    try {
+      const response = await api.get(`/user/find-by-id/${userId}`);
+      setMe(response.data);
+      setModalOpen(true);
+    } catch (error) {
+      message.error("Failed to fetch me");
+    }
+  };
+  console.log("me", me);
 
-  const showModal = () => {
-    setIsModalOpen(true);
+  // Ma'lumotlarni PUT qilish
+  const updateMe = async (id: string, updatedUser: User) => {
+    try {
+      await api.put(`/user/update/${id}`, updatedUser); // "me" endpoint uchun PUT
+      setMe(updatedUser); // Mahalliy state'da yangilash
+      setEditMode(false); // Tahrirlash rejimini yopish
+      Modal.success({ content: "User data updated successfully!" });
+    } catch (error) {
+      console.error("Error updating user data:", error);
+      Modal.error({ content: "Failed to update user data." });
+    }
+  };
+
+  // Modalni yopish
+  const handleClose = () => {
+    setModalOpen(false);
+    setEditMode(false);
+  };
+
+  // Form ma'lumotlarini yuborish
+  const handleFormSubmit = async () => {
+    try {
+      const updatedFields = await form.validateFields();
+      if (me) {
+        const finalUser: User = {
+          ...me,
+          ...updatedFields,
+          // birthday: updatedFields.birthday.format("YYYY-MM-DD"),
+        };
+        updateMe(finalUser.id, finalUser);
+      }
+    } catch (error) {
+      console.error("Validation failed:", error);
+    }
   };
 
   return (
@@ -84,9 +122,9 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           items={[
             {
               key: "/superAdmin/admins",
-              icon: <UserOutlined style={{ color: "white" }} />,
+              icon: <UserOutlined style={{ color: "rgb(5,62,139)" }} />,
               label: (
-                <Link to="admins" style={{ color: "white" }}>
+                <Link to="admins" style={{ color: "rgb(5,62,139)" }}>
                   Admins
                 </Link>
               ),
@@ -105,22 +143,25 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           <Title>{title}</Title>
 
           <div
-            className="flex flex-row  items-center gap-3 "
-            onClick={showModal}
+            className="flex flex-row  items-center gap-3 cursor-pointer"
+            onClick={FetchMe}
           >
-            <div className="flex flex-col">
+            <div className="flex flex-col ">
               <Title level={5}>
-                {dataSuperAdmin[0].username}
-
-                {dataSuperAdmin[0].surname}
+                <button>{`${me?.username} `}</button>
               </Title>
               <Title
                 className="text-gray-500 p-0 m-0 text-end"
                 style={{ fontSize: "10px", margin: "0" }}
               >
-                {dataSuperAdmin[0].role}
+                {me?.role}
               </Title>
             </div>
+            <img
+              src="https://banner2.cleanpng.com/20180622/tqt/aazen4lhc.webp"
+              alt=""
+              className="w-10 h-10 rounded-full"
+            />
           </div>
         </Header>
         <Content
@@ -135,28 +176,136 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           {children}
         </Content>
       </LayoutAntd>
-      <Modal
-        title="Super Admin"
-        open={isModalOpen}
-        onOk={() => setIsModalOpen(false)}
-        onCancel={() => setIsModalOpen(false)}
-      >
-        <div>
-          <Title level={4}>{dataSuperAdmin[0].username}</Title>
-          <Title level={4}>{dataSuperAdmin[0].surname}</Title>
-          <Title level={4}>{dataSuperAdmin[0].role}</Title>
-          <Title level={4}>{dataSuperAdmin[0].email}</Title>
-          <Title level={4}>{dataSuperAdmin[0].password}</Title>
-          <Title level={4}>{dataSuperAdmin[0].birthday}</Title>
-          <Title level={4}>{dataSuperAdmin[0].phoneNumber}</Title>
-          <Title level={4}>{dataSuperAdmin[0].balance}</Title>
-          <Title level={4}>{dataSuperAdmin[0].address}</Title>
-          <Title level={4}>{dataSuperAdmin[0].passportSeries}</Title>
-        </div>
-        <div style={{ background: "rgb(5,62,139)", color: "white" }}>
-          <Link to="/">Exit</Link>
-        </div>
-      </Modal>
+      {me && (
+        <Modal
+          title={isEditMode ? "Edit My Info" : "My Info"}
+          visible={isModalOpen}
+          onCancel={handleClose}
+          footer={
+            isEditMode ? (
+              <>
+                <Button onClick={() => setEditMode(false)}>Cancel</Button>
+                <Button type="primary" onClick={handleFormSubmit}>
+                  Save Changes
+                </Button>
+              </>
+            ) : (
+              <div className="flex gap-2 justify-items-end">
+                <Button type="primary" onClick={() => setEditMode(true)}>
+                  Edit
+                </Button>
+                <Button color="danger" variant="solid">
+                  <Link to="/">Exit</Link>
+                </Button>
+              </div>
+            )
+          }
+        >
+          {isEditMode ? (
+            <Form
+              form={form}
+              initialValues={{
+                username: me.username,
+                surname: me.surname,
+                email: me.email,
+                // birthDate: moment(me.birthDate),
+                phoneNumber: me.phoneNumber,
+                address: me.address,
+                passportSeries: me.passportSeries,
+              }}
+              layout="vertical"
+            >
+              <Form.Item
+                label="Username"
+                name="username"
+                rules={[
+                  { required: true, message: "Please input your username!" },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                label="Surname"
+                name="surname"
+                rules={[
+                  { required: true, message: "Please input your surname!" },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={[
+                  {
+                    required: true,
+                    type: "email",
+                    message: "Please input a valid email!",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              {/* <Form.Item
+                name="password"
+                label="Password"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input your password!",
+                  },
+                  {
+                    pattern: passwordPattern,
+                    message:
+                      "Password must be at least 6 characters, letters and numbers!",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item> */}
+
+              <Form.Item label="Phone Number" name="phoneNumber">
+                <Input />
+              </Form.Item>
+
+              <Form.Item label="Address" name="address">
+                <Input />
+              </Form.Item>
+              <Form.Item label="Passport Series" name="passportSeries">
+                <Input />
+              </Form.Item>
+            </Form>
+          ) : (
+            <div>
+              <p>
+                <b>Username:</b> {me.username}
+              </p>
+              <p>
+                <b>Surname:</b> {me.surname}
+              </p>
+              <p>
+                <b>Email:</b> {me.email}
+              </p>
+              <p>
+                <b>Birthday:</b> {me.birthDate}
+              </p>
+              <p>
+                <b>Phone Number:</b> {me.phoneNumber}
+              </p>
+
+              <p>
+                <b>Address:</b> {me.address}
+              </p>
+              <p>
+                <b>Balance:</b> {me.balance}
+              </p>
+              <p>
+                <b>Passport Series:</b> {me.passportSeries}
+              </p>
+            </div>
+          )}
+        </Modal>
+      )}
     </LayoutAntd>
   );
 };
